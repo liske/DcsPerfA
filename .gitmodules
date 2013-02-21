@@ -4,3 +4,6 @@
 [submodule "d3-plugins"]
 	path = d3-plugins
 	url = https://github.com/d3/d3-plugins.git
+[submodule "include/queue"]
+	path = include/queue
+	url = https://github.com/mbostock/queue.git
