@@ -21,11 +21,21 @@
 
 </style>
 <body>
+
+X: <select class="src" id="x"></select>
+Y: <select class="src" id="y"></select>
+Z: <select class="src" id="z"></select>
 <script src="include/queue/queue.min.js"></script>
 <script src="include/d3/d3.min.js"></script>
 <script src="include/d3-plugins/hexbin/hexbin.js"></script>
 <script>
 
+d3.csv("/CounterDefs.csv", function(rows) {
+    var i = 0;
+    rows.forEach(function(o) {
+	d3.selectAll(".src").append("option").text(o.TypeName.substr(0,o.TypeName.length-11) + " / " + o.Identifiable_ExtendedCaption + " / " + o.Name);
+    });
+});
 
 var margin = {top: 20, right: 20, bottom: 30, left: 40},
     width = 960 - margin.left - margin.right,
@@ -39,15 +49,6 @@ var color = d3.scale.linear()
     .domain([0, 20])
     .range(["white", "steelblue"])
     .interpolate(d3.interpolateLab);
-
-queue()
-    .defer(d3.tsv, "CounterDefs.csv")
-    .defer(d3.tsv, "CounterData.csv")
-    .await(ready);
-
-function ready(error, states, statePopulations) {
-
-log( error);
 
 var hexbin = d3.hexbin()
     .size([width, height])
@@ -101,5 +102,4 @@ svg.append("g")
     .attr("class", "x axis")
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis);
-}
 </script>
