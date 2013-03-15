@@ -31,7 +31,7 @@ GO
 /****** Object:  View [dbo].[CounterData] ******/
 CREATE VIEW [dbo].[CounterData] AS
 	SELECT
-		s.SampleTime - 62135596800000,
+		s.SampleTime - 62135596800000 AS SampleTime,
 		p.ObjectId,
 		c.CounterIndex,
 		c.Data
