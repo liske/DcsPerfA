@@ -7,7 +7,7 @@ GO
 
 
 
-/****** Object:  View [dbo].[CounterDefs]    Script Date: 21.02.2013 14:38:39 ******/
+/****** Object:  View [dbo].[CounterDefs] ******/
 CREATE VIEW [dbo].[CounterDefs] AS
 	SELECT
 		p.ObjectId,
@@ -28,10 +28,10 @@ GO
 
 
 
-/****** Object:  View [dbo].[CounterData]    Script Date: 21.02.2013 14:41:55 ******/
+/****** Object:  View [dbo].[CounterData] ******/
 CREATE VIEW [dbo].[CounterData] AS
 	SELECT
-		s.SampleTime,
+		s.SampleTime - 62135596800000,
 		p.ObjectId,
 		c.CounterIndex,
 		c.Data
