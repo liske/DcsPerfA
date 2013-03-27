@@ -193,14 +193,16 @@ foreach my $type (sort keys %classes) {
 
 	    print STDERR "   -";
 	    foreach my $counter (sort keys %{$classes{$type}->{$pi}->{$group} }) {
+		my $k1 = $classes{$type}->{$pi}->{$group}->{$counter}->{k1};
+		my $k2 = $classes{$type}->{$pi}->{$group}->{$counter}->{k2};
 		print STDERR " $counter";
 		    
-		unless($indexes{ $classes{$type}->{$pi}->{$group}->{$counter}->{k1} }->{ $classes{$type}->{$pi}->{$group}->{$counter}->{k2} }) {
+		unless($indexes{ $k1 }->{ $k2 }) {
 		    print STDERR "[i]";
 		    next;
 		}
 
-		my $i = $indexes{ $classes{$type}->{$pi}->{$group}->{$counter}->{k1} }->{ $classes{$type}->{$pi}->{$group}->{$counter}->{k2} };
+		my $i = $indexes{ $k1 }->{ $k2 };
 		if($group =~ /Time/) {
 		    $i = "(\$$i/1000000)";
 		}
@@ -212,7 +214,7 @@ foreach my $type (sort keys %classes) {
 		     ));
 		push(@dsets_hist, Chart::Gnuplot::DataSet->new(
 			 datafile => $CSV,
-			 using => "(hist(\$$i,width)):(1.0) smooth freq",
+			 using => "(hist(\$$i,width)):(100.0/$keys{$k1}->{$k2}) smooth freq",
 			 title => $counter,
 			 style => 'steps lw 3',
 		     ));
@@ -270,6 +272,7 @@ foreach my $type (sort keys %classes) {
 		);
 
 	    setformat($group, $chart_hist, 'x');
+	    $chart_hist->command("set format y \"%.1s %%\"");
 
 	    my $cwidth = abs($maxs{$group}*1.0 - $mins{$group}*1.0)/100;
 	    $chart_hist->command("width=$cwidth");
