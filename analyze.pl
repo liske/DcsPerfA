@@ -102,23 +102,25 @@ foreach my $k1 (@k1) {
 }
 print HOUT "\n";
 
-sub setformat($$$) {
-    my($group, $chart, $axis) = @_;
+sub setformat($$$$) {
+    my($group, $chart, $ctype, $axis) = @_;
+
+    my $ps = ($ctype eq 'Delta' ? '/s' : '');
 
     if($group =~ /Byte/) {
-	$chart->command("set format $axis \"%.1s %cb\"");
+	$chart->command("set format $axis \"%.1s %cb$ps\"");
     }
     elsif($group =~ /Time/) {
-	$chart->command("set format $axis \"%.1s %cs\"");
+	$chart->command("set format $axis \"%.1s %cs$ps\"");
     }
     elsif($group =~ /Percent/) {
-	$chart->command("set format $axis \"%.1s %%\"");
+	$chart->command("set format $axis \"%.1s %%$ps\"");
     }
     elsif($group =~ /IOPs/) {
-	$chart->command("set format $axis \"%.1s %cops\"");
+	$chart->command("set format $axis \"%.1s %cIO$ps\"");
     }
     else {
-	$chart->command("set format $axis \"%.1s %c\"");
+	$chart->command("set format $axis \"%.1s %c$ps\"");
     }
 }
 
@@ -190,11 +192,13 @@ foreach my $type (sort keys %classes) {
 
 	    my @dsets;
 	    my @dsets_hist;
+	    my $ctype;
 
 	    print STDERR "   -";
 	    foreach my $counter (sort keys %{$classes{$type}->{$pi}->{$group} }) {
 		my $k1 = $classes{$type}->{$pi}->{$group}->{$counter}->{k1};
 		my $k2 = $classes{$type}->{$pi}->{$group}->{$counter}->{k2};
+		$ctype = $classes{$type}->{$pi}->{$group}->{$counter}->{ctype};
 		print STDERR " $counter";
 		    
 		unless($indexes{ $k1 }->{ $k2 }) {
@@ -246,7 +250,7 @@ foreach my $type (sort keys %classes) {
 		tics => 'out',
 		);
 
-	    setformat($group, $chart, 'y');
+	    setformat($group, $chart, $ctype, 'y');
 
 	    eval('$chart->plot2d(@dsets);');
 	    print HIDX "<p><img src='$out' />";
@@ -272,7 +276,7 @@ foreach my $type (sort keys %classes) {
 		tics => 'out',
 		);
 
-	    setformat($group, $chart_hist, 'x');
+	    setformat($group, $chart_hist, $ctype, 'x');
 	    $chart_hist->command("set format y \"%.1s %%\"");
 
 	    my $cwidth = abs($maxs{$group}*1.0 - $mins{$group}*1.0)/100;
