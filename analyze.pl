@@ -265,6 +265,7 @@ foreach my $type (sort keys %classes) {
 		    position => 'below',
 		},
 		xrange => [($mins{$group} < 0 ? $mins{$group}*1.1 : 0), $maxs{$group}*1.1],
+		yrange => [0, 100],
 		grid => {
 		    width => 1,
 		},
