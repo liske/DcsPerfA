@@ -102,6 +102,26 @@ foreach my $k1 (@k1) {
 }
 print HOUT "\n";
 
+sub setformat($$$) {
+    my($group, $chart, $axis) = @_;
+
+    if($group =~ /Byte/) {
+	$chart->command("set format $axis \"%.1s %cb\"");
+    }
+    elsif($group =~ /Time/) {
+	$chart->command("set format $axis \"%.1s %cs\"");
+    }
+    elsif($group =~ /Percent/) {
+	$chart->command("set format $axis \"%.1s %%\"");
+    }
+    elsif($group =~ /IOPs/) {
+	$chart->command("set format $axis \"%.1s %cops\"");
+    }
+    else {
+	$chart->command("set format $axis \"%.1s %c\"");
+    }
+}
+
 my $last;
 foreach my $ts (sort {$a <=> $b} keys %vals) {
     print HOUT $ts;
@@ -113,7 +133,7 @@ foreach my $ts (sort {$a <=> $b} keys %vals) {
 
 	    if($deltas{$k1}->{$k2}) {
 		if(defined($last)) {
-		    $v /= ($ts - $last);
+		    $v /= $ts - $last;
 		}
 		else {
 		    $v = '';
@@ -138,14 +158,39 @@ close(HOUT);
 
 
 print STDERR "Creating graphs...\n";
+
+my $IDX = "$outdir/index.html";
+open(HIDX, '>', $IDX) || die "Could not create '$IDX': $!\n";
+print HIDX <<EOH;
+<html>
+<body>
+EOH
+
 foreach my $type (sort keys %classes) {
     print STDERR "\n[$type]\n";
+    print HIDX "<a name=\"$type\"><h2>$type</h2></a>\n";
+    foreach my $t (sort keys %classes) {
+	if($type ne $t) {
+	    print HIDX "[ <a href=\"#$t\">$t</a> ] ";
+	}
+	else {
+	    print HIDX "[ $t ] ";
+	}
+    }
+
     foreach my $pi (sort keys %{$classes{$type}}) {
 	print STDERR " + $pi\n";
+	print HIDX "\n<h3>$pi</h3>\n";
 
 	foreach my $group (sort keys %{ $classes{$type}->{$pi} }) {
+	    if($mins{$group} == 0 && $maxs{$group} == 0) {
+		next;
+	    }
+	    print HIDX "<h4>$group</h4>\n";
+
 	    my @dsets;
-	    
+	    my @dsets_hist;
+
 	    print STDERR "   -";
 	    foreach my $counter (sort keys %{$classes{$type}->{$pi}->{$group} }) {
 		print STDERR " $counter";
@@ -163,7 +208,13 @@ foreach my $type (sort keys %classes) {
 			 datafile => $CSV,
 			 using => "1:$i smooth csplines",
 			 title => $counter,
-			 style => 'lines lw 2',
+			 style => 'lines lw 3',
+		     ));
+		push(@dsets_hist, Chart::Gnuplot::DataSet->new(
+			 datafile => $CSV,
+			 using => "(hist(\$$i,width)):(1.0) smooth freq",
+			 title => $counter,
+			 style => 'steps lw 3',
 		     ));
 	    }
 	    if($#dsets == -1 || $mins{$group} == $maxs{$group}) {
@@ -172,12 +223,12 @@ foreach my $type (sort keys %classes) {
 	    }
 	    print STDERR "\n";
 	    
-	    my $out = "$outdir/$type-$pi-$group.png";
+	    my $out = "$type-$pi-${group}_trend.png";
 	    $out =~ s/ /_/g;
 	    
-	    unlink($out);
+	    unlink("$outdir/$out");
 	    my $chart = Chart::Gnuplot->new(
-		output => $out,
+		output => "$outdir/$out",
 		title => $pi,
 		timefmt => '"%s"',
 		xdata => 'time',
@@ -192,23 +243,49 @@ foreach my $type (sort keys %classes) {
 		},
 		tics => 'out',
 		);
-	    $chart->command('set format x "%y/%m/%d"');
-	    if($group =~ /Byte/) {
-		$chart->command('set format y "%.1s %cb"');
-	    }
-	    elsif($group =~ /Time/) {
-		$chart->command('set format y "%.1s %cs"');
-	    }
-	    elsif($group =~ /Percent/) {
-		$chart->command('set format y "%.1s %%"');
-	    }
-	    elsif($group =~ /IOPs/) {
-		$chart->command('set format y "%.1s %cops"');
-	    }
-	    else {
-		$chart->command('set format y "%.1s %c"');
-	    }
+
+	    setformat($group, $chart, 'y');
+
 	    eval('$chart->plot2d(@dsets);');
+	    print HIDX "<p><img src='$out' />";
+
+
+
+	    $out = "$type-$pi-${group}_hist.png";
+	    $out =~ s/ /_/g;
+
+	    unlink("$outdir/$out");
+	    my $chart_hist = Chart::Gnuplot->new(
+		output => "$outdir/$out",
+		title => "$pi (histogram)",
+		bg => 'white',
+		legend => {
+		    position => 'below',
+		},
+		xrange => [($mins{$group} < 0 ? $mins{$group}*1.1 : 0), $maxs{$group}*1.1],
+		grid => {
+		    width => 1,
+		},
+		tics => 'out',
+		);
+
+	    setformat($group, $chart_hist, 'x');
+
+	    my $cwidth = abs($maxs{$group}*1.0 - $mins{$group}*1.0)/100;
+	    $chart_hist->command("width=$cwidth");
+	    $chart_hist->command('hist(x,width)=width*floor(x/width)+width/2.0');
+	    eval('$chart_hist->plot2d(@dsets_hist);');
+
+	    print HIDX "<img src='$out' /></p>";
 	}
     }
 }
+
+print HIDX <<EOF;
+<hr />
+<small>$0</small>
+</body>
+</html>
+EOF
+
+close(HIDX);
