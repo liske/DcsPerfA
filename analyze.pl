@@ -235,7 +235,7 @@ foreach my $type (sort keys %classes) {
 	    unlink("$outdir/$out");
 	    my $chart = Chart::Gnuplot->new(
 		output => "$outdir/$out",
-		title => $pi,
+		title => "$pi (trend)",
 		timefmt => '"%s"',
 		xdata => 'time',
 		bg => 'white',
@@ -261,9 +261,10 @@ foreach my $type (sort keys %classes) {
 	    $out =~ s/ /_/g;
 
 	    unlink("$outdir/$out");
+	    my $cwidth = abs($maxs{$group}*1.0 - $mins{$group}*1.0)/100;
 	    my $chart_hist = Chart::Gnuplot->new(
 		output => "$outdir/$out",
-		title => "$pi (histogram)",
+		title => "$pi (histogram; bin-width = $cwidth)",
 		bg => 'white',
 		legend => {
 		    position => 'below',
@@ -279,7 +280,6 @@ foreach my $type (sort keys %classes) {
 	    setformat($group, $chart_hist, $ctype, 'x');
 	    $chart_hist->command("set format y \"%.1s %%\"");
 
-	    my $cwidth = abs($maxs{$group}*1.0 - $mins{$group}*1.0)/100;
 	    $chart_hist->command("width=$cwidth");
 	    $chart_hist->command('hist(x,width)=width*floor(x/width)+width/2.0');
 	    eval('$chart_hist->plot2d(@dsets_hist);');
