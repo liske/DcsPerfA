@@ -25,6 +25,7 @@
 #
 
 use Date::Parse;
+use POSIX(strftime);
 use Text::Template;
 use JSON;
 use strict;
@@ -70,7 +71,7 @@ while(<HDEFS>) {
 }
 close(HDEFS);
 
-
+if(0) {
 print STDERR "Reading data...\n";
 my %vals;
 my %keys;
@@ -131,6 +132,7 @@ foreach my $k1 (@k1) {
 	close(HOUT);
     }
 }
+}
 
 print STDERR "Creating index.html...\n";
 
@@ -143,6 +145,8 @@ open(HIDX, '>', $IDX) || die "Could not create '$IDX': $!\n";
 my $res = $t->fill_in(
     OUTPUT => \*HIDX,
     HASH => {
+	from => strftime("%FT%R", localtime($t1)),
+	to => strftime("%FT%R", localtime($t2)),
 	classes => \%classes,
     },
 );
@@ -177,6 +181,28 @@ __END__
 </head>
 <body>
 
+<div id="footer" style="position: absolute; bottom:0; background: #a0a0a0; width:99%">
+    <div style="width:100%;background:black;color:white;text-align:center">
+	<b>Graphing...</b>
+    </div>
+
+    <div>
+	<b>Limit</b>
+	from
+	    <input type="datetime-local" min="{$from}" max="{$to}" value="{$from}"/>
+	until
+	    <input type="datetime-local" min="{$from}" max="{$to}" value="{$to}"/>
+    </div>
+
+    <div>
+	<b>Mode</b>
+	<select name="dcs_mode">
+	    <option value="ts">Time Series</option>
+	    <option value="hist">Histogram</option>
+	    <option value="corr">Correlation</option>
+	</select>
+    </div>
+
 <table>
     <tr>
 	<th>X:</th>
@@ -209,5 +235,7 @@ __END__
 
 <hr />
 <small>{scalar localtime().' - <code>'.join(' ', $0, @ARGV)}</code></small>
+</div>
+
 </body>
 </html>
