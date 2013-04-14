@@ -26,6 +26,7 @@
 
 use Date::Parse;
 use Text::Template;
+use JSON;
 use strict;
 use warnings;
 
@@ -69,7 +70,7 @@ while(<HDEFS>) {
 }
 close(HDEFS);
 
-if(0) {
+
 print STDERR "Reading data...\n";
 my %vals;
 my %keys;
@@ -89,20 +90,23 @@ while(<HDATA>) {
 close(HDATA);
 
 
-print STDERR "Creating CSV output...\n";
-mkdir("$outdir/csv/");
+my $json = JSON->new();
+$json->canonical(1);
+$json->shrink(1);
+
+print STDERR "Creating JSON output...\n";
+mkdir("$outdir/json/");
 
 my @k1 = sort {$a <=> $b} keys %keys;
 my $idx = 2;
 foreach my $k1 (@k1) {
     foreach my $k2 (sort {$a <=> $b} keys %{$keys{$k1}}) {
-	my $CSV = "$outdir/csv/$k1-$k2.csv";
-	open(HOUT, '>', $CSV) || die "Could not create '$CSV': $!\n";
-	print HOUT "#TimeStamp\t$names{$k1}->{$k2}\n";
+	my $JSO = "$outdir/json/$k1-$k2.json";
+	open(HOUT, '>', $JSO) || die "Could not create '$JSO': $!\n";
 
 	my $last;
+	my @data;
 	foreach my $ts (sort {$a <=> $b} keys %vals) {
-	    print HOUT $ts;
 
 	    my $v = $vals{$ts}->{$k1}->{$k2};
 
@@ -115,15 +119,19 @@ foreach my $k1 (@k1) {
 		}
 	    }
 
-	    print HOUT "$ts\t$v\n";
+	    my %data = (
+		t => $ts,
+		v => $v,
+	    );
+	    push(@data, \%data);
 
 	    $last = $ts;
 	}
+	print HOUT $json->encode(\@data);
 	close(HOUT);
     }
 }
 
-}
 print STDERR "Creating index.html...\n";
 
 my $t = Text::Template->new(TYPE => 'FILEHANDLE', SOURCE => \*DATA)
