@@ -222,7 +222,6 @@ foreach my $type (sort keys %classes) {
 	    if($mins{$group} == 0 && $maxs{$group} == 0) {
 		next;
 	    }
-	    print HIDX "<h4>$group</h4>\n";
 
 	    my @dsets;
 	    my @dsets_hist;
@@ -259,6 +258,8 @@ foreach my $type (sort keys %classes) {
 		next;
 	    }
 	    print STDERR "\n";
+	    
+	    print HIDX "<h4>$group</h4>\n";
 	    
 	    my $out = "$type-$pi-${group}_trend.png";
 	    $out =~ s/ /_/g;
