@@ -44,7 +44,7 @@ my %groupings = (
     Bytes => qr/.+Bytes.+/,
     Time => qr/Time$/,
     IOPs => qr/(Operations|Reads|Writes)$/,
-    IGNORE => qr/^Bytes/,
+    IGNORE => qr/^(Bytes|FreeCache)/,
     );
 
 my ($from, $to, $fn_defs, $fn_data, $outdir) = @ARGV;
