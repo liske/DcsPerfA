@@ -33,6 +33,7 @@ die "Usage: $0 <from> <to> <defs.csv> <data.csv> <output dir>\n" unless($#ARGV =
 
 use constant {
     GNUPLOT_TIME_OFFSET => 946684800,
+    IGNORE => 'IGNORE',
 };
 
 my %groupings = (
@@ -43,6 +44,7 @@ my %groupings = (
     Bytes => qr/.+Bytes.+/,
     Time => qr/Time$/,
     IOPs => qr/(Operations|Reads|Writes)$/,
+    IGNORE => qr/^Bytes/,
     );
 
 my ($from, $to, $fn_defs, $fn_data, $outdir) = @ARGV;
@@ -75,6 +77,8 @@ while(<HDEFS>) {
 	    last;
 	}
     }
+
+    next if($group eq IGNORE);
 
     $classes{$type}->{$pilong}->{$group}->{$counter} = {
 	counter => $counter,
@@ -168,6 +172,8 @@ foreach my $ts (sort {$a <=> $b} keys %vals) {
 
 	    if($v ne '') {
 		my $group = $groupmap{$k1}->{$k2};
+
+		next unless(defined($group));
 
 		# normalize time values
 		$v /= 1000000 if($group =~ /Time/);
