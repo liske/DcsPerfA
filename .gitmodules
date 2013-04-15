@@ -1,9 +1,0 @@
-[submodule "include/queue"]
-	path = include/queue
-	url = https://github.com/mbostock/queue.git
-[submodule "include/d3-plugins"]
-	path = include/d3-plugins
-	url = https://github.com/d3/d3-plugins.git
-[submodule "include/d3"]
-	path = include/d3
-	url = https://github.com/mbostock/d3.git
