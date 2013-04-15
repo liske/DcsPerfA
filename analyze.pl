@@ -168,6 +168,10 @@ foreach my $ts (sort {$a <=> $b} keys %vals) {
 
 	    if($v ne '') {
 		my $group = $groupmap{$k1}->{$k2};
+
+		# normalize time values
+		$v /= 1000000 if($group =~ /Time/);
+
 		$maxs{$group} = $v if(!exists($maxs{$group}) || $maxs{$group} < $v);
 		$mins{$group} = $v if(!exists($mins{$group}) || $mins{$group} > $v);
 	    }
@@ -231,9 +235,6 @@ foreach my $type (sort keys %classes) {
 		}
 
 		my $i = $indexes{ $k1 }->{ $k2 };
-		if($group =~ /Time/) {
-		    $i = "(\$$i/1000000)";
-		}
 		push(@dsets, Chart::Gnuplot::DataSet->new(
 			 datafile => $CSV,
 			 using => "1:$i smooth csplines",
