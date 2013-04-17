@@ -26,6 +26,8 @@
 
 use Chart::Gnuplot;
 use Date::Parse;
+use JSON;
+use Statistics::Basic qw(:all);
 use strict;
 use warnings;
 
@@ -44,7 +46,7 @@ my %groupings = (
     Bytes => qr/.+Bytes.+/,
     Time => qr/Time$/,
     IOPs => qr/(Operations|Reads|Writes)$/,
-    IGNORE => qr/^(Bytes|FreeCache)/,
+    IGNORE => qr/^Bytes/,
     );
 
 my ($from, $to, $fn_defs, $fn_data, $outdir) = @ARGV;
@@ -121,6 +123,7 @@ my $idx = 2;
 my %indexes;
 my %mins;
 my %maxs;
+my %vectors;
 foreach my $k1 (@k1) {
     foreach my $k2 (sort {$a <=> $b} keys %{$keys{$k1}}) {
 	print HOUT "\t$names{$k1}->{$k2}";
@@ -180,6 +183,14 @@ foreach my $ts (sort {$a <=> $b} keys %vals) {
 
 		$maxs{$group} = $v if(!exists($maxs{$group}) || $maxs{$group} < $v);
 		$mins{$group} = $v if(!exists($mins{$group}) || $mins{$group} > $v);
+
+		# track statistics
+		unless(exists($vectors{$k1}->{$k2})) {
+		    $vectors{$k1}->{$k2} = vector($v);
+		}
+		else {
+		    $vectors{$k1}->{$k2}->append($v);
+		}
 	    }
 
 	    print HOUT "\t$v";
@@ -202,6 +213,7 @@ print HIDX <<EOH;
 <body>
 EOH
 
+my %json;
 foreach my $type (sort keys %classes) {
     print STDERR "\n[$type]\n";
     print HIDX "<a name=\"$type\"><h2>$type</h2></a>\n";
@@ -233,9 +245,14 @@ foreach my $type (sort keys %classes) {
 		my $k2 = $classes{$type}->{$pi}->{$group}->{$counter}->{k2};
 		$ctype = $classes{$type}->{$pi}->{$group}->{$counter}->{ctype};
 		print STDERR " $counter";
-		    
+
 		unless($indexes{ $k1 }->{ $k2 }) {
 		    print STDERR "[i]";
+		    next;
+		}
+
+		unless(exists($vectors{ $k1 }->{ $k2 })) {
+		    print STDERR "[e]";
 		    next;
 		}
 
@@ -252,8 +269,14 @@ foreach my $type (sort keys %classes) {
 			 title => $counter,
 			 style => 'steps lw 3',
 		     ));
+
+		%{ $json{$type}->{$pi}->{$group}->{counters}->{$counter} } = %{ $classes{$type}->{$pi}->{$group}->{$counter} };
+		$json{$type}->{$pi}->{$group}->{counters}->{$counter}->{stat}->{mean} = mean( $vectors{$k1}->{$k2} );
+		$json{$type}->{$pi}->{$group}->{counters}->{$counter}->{stat}->{median} = median( $vectors{$k1}->{$k2} );
+		$json{$type}->{$pi}->{$group}->{counters}->{$counter}->{stat}->{var} = var( $vectors{$k1}->{$k2} );
+		$json{$type}->{$pi}->{$group}->{counters}->{$counter}->{stat}->{stddev} = stddev( $vectors{$k1}->{$k2} );
 	    }
-	    if($#dsets == -1 || $mins{$group} == $maxs{$group}) {
+	    if($#dsets == -1) {
 		print STDERR " SKIPPED\n";
 		next;
 	    }
@@ -329,3 +352,8 @@ print HIDX <<EOF;
 EOF
 
 close(HIDX);
+
+my $META = "$outdir/meta.json";
+open(HMETA, '>', $META) || die "Could not create '$META': $!\n";
+print HMETA;
+close(HMETA);
