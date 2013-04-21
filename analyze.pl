@@ -68,6 +68,7 @@ die "Output path '$outdir' is not a directory!\n" unless(-d $outdir);
 print STDERR 'Filter range: ', scalar localtime($t1), ' - ', scalar localtime($t2), "\n";
 
 
+# read definitions from export
 print STDERR "Reading definitions...\n";
 my %classes;
 my %names;
@@ -103,6 +104,7 @@ while(<HDEFS>) {
 close(HDEFS);
 
 
+# read data from export
 print STDERR "Reading data...\n";
 my %vals;
 my %keys;
@@ -122,6 +124,7 @@ while(<HDATA>) {
 close(HDATA);
 
 
+# create CSV data file and track some statistics
 print STDERR "Creating CSV data output...\n";
 my $CSV = "$outdir/raw/$rname/data.csv";
 open(HOUT, '>', $CSV) || die "Could not create '$CSV': $!\n";
@@ -140,28 +143,6 @@ foreach my $k1 (@k1) {
     }
 }
 print HOUT "\n";
-
-sub setformat($$$$) {
-    my($group, $chart, $ctype, $axis) = @_;
-
-    my $ps = ($ctype eq 'Delta' ? '/s' : '');
-
-    if($group =~ /Byte/) {
-	$chart->command("set format $axis \"%.1s %cb$ps\"");
-    }
-    elsif($group =~ /Time/) {
-	$chart->command("set format $axis \"%.1s %cs$ps\"");
-    }
-    elsif($group =~ /Percent/) {
-	$chart->command("set format $axis \"%.1s %%$ps\"");
-    }
-    elsif($group =~ /IOPs/) {
-	$chart->command("set format $axis \"%.1s %cIO$ps\"");
-    }
-    else {
-	$chart->command("set format $axis \"%.1s %c$ps\"");
-    }
-}
 
 my $last;
 foreach my $ts (sort {$a <=> $b} keys %vals) {
@@ -212,7 +193,30 @@ foreach my $ts (sort {$a <=> $b} keys %vals) {
 close(HOUT);
 
 
+# create graph drawings
 print STDERR "Creating graphs...\n";
+
+sub setformat($$$$) {
+    my($group, $chart, $ctype, $axis) = @_;
+
+    my $ps = ($ctype eq 'Delta' ? '/s' : '');
+
+    if($group =~ /Byte/) {
+	$chart->command("set format $axis \"%.1s %cb$ps\"");
+    }
+    elsif($group =~ /Time/) {
+	$chart->command("set format $axis \"%.1s %cs$ps\"");
+    }
+    elsif($group =~ /Percent/) {
+	$chart->command("set format $axis \"%.1s %%$ps\"");
+    }
+    elsif($group =~ /IOPs/) {
+	$chart->command("set format $axis \"%.1s %cIO$ps\"");
+    }
+    else {
+	$chart->command("set format $axis \"%.1s %c$ps\"");
+    }
+}
 
 my %json;
 foreach my $type (sort keys %classes) {
@@ -335,11 +339,15 @@ foreach my $type (sort keys %classes) {
     }
 }
 
+
+# save meta data
 my $META = "$outdir/raw/$rname/meta.json";
 open(HMETA, '>', $META) || die "Could not create '$META': $!\n";
 print HMETA to_json(\%json, {allow_blessed => 1, convert_blessed => 1, pretty => 1});
 close(HMETA);
 
+
+# update/create manifest
 my $fn_mani = "$outdir/raw/manifest.json";
 my $manifest = { };
 if (open(HMANI, '<', $fn_mani)) {
