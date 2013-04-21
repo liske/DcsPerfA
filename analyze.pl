@@ -231,9 +231,9 @@ foreach my $type (sort keys %classes) {
 	print HIDX "\n<h3>$pi</h3>\n";
 
 	foreach my $group (sort keys %{ $classes{$type}->{$pi} }) {
-	    if($mins{$group} == 0 && $maxs{$group} == 0) {
-		next;
-	    }
+	    # ignore empty groups
+	    next unless(defined($mins{$group}));
+	    next if($mins{$group} == 0 && $maxs{$group} == 0);
 
 	    my @dsets;
 	    my @dsets_hist;
@@ -333,7 +333,7 @@ foreach my $type (sort keys %classes) {
 		);
 
 	    setformat($group, $chart_hist, $ctype, 'x');
-	    $chart_hist->command("set format y \"%.1s %%\"");
+	    $chart_hist->command("set format y \"%.1s %%\""); #"
 
 	    $chart_hist->command("width=$cwidth");
 	    $chart_hist->command('hist(x,width)=width*floor(x/width)+width/2.0');
@@ -355,5 +355,5 @@ close(HIDX);
 
 my $META = "$outdir/meta.json";
 open(HMETA, '>', $META) || die "Could not create '$META': $!\n";
-print HMETA;
+print HMETA to_json(\%json, {allow_blessed => 1, convert_blessed => 1, pretty => 1});
 close(HMETA);
