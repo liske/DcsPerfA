@@ -278,11 +278,11 @@ foreach my $type (sort keys %classes) {
 			 style => 'steps lw 3',
 		     ));
 
-		%{ $json{$type}->{$pi}->{$group}->{counters}->{$counter} } = %{ $classes{$type}->{$pi}->{$group}->{$counter} };
-		$json{$type}->{$pi}->{$group}->{counters}->{$counter}->{stat}->{mean} = mean( $vectors{$k1}->{$k2}->query_vector );
-		$json{$type}->{$pi}->{$group}->{counters}->{$counter}->{stat}->{median} = median( $vectors{$k1}->{$k2}->query_vector );
-		$json{$type}->{$pi}->{$group}->{counters}->{$counter}->{stat}->{var} = var( $vectors{$k1}->{$k2}->query_vector );
-		$json{$type}->{$pi}->{$group}->{counters}->{$counter}->{stat}->{stddev} = stddev( $vectors{$k1}->{$k2}->query_vector );
+		%{ $json{$type}->{$pi}->{$group}->{Counters}->{$counter} } = %{ $classes{$type}->{$pi}->{$group}->{$counter} };
+		$json{$type}->{$pi}->{$group}->{Counters}->{$counter}->{stat}->{mean} = mean( $vectors{$k1}->{$k2}->query_vector );
+		$json{$type}->{$pi}->{$group}->{Counters}->{$counter}->{stat}->{median} = median( $vectors{$k1}->{$k2}->query_vector );
+		$json{$type}->{$pi}->{$group}->{Counters}->{$counter}->{stat}->{var} = var( $vectors{$k1}->{$k2}->query_vector );
+		$json{$type}->{$pi}->{$group}->{Counters}->{$counter}->{stat}->{stddev} = stddev( $vectors{$k1}->{$k2}->query_vector );
 	    }
 	    if($#dsets == -1) {
 		print STDERR " SKIPPED\n";
