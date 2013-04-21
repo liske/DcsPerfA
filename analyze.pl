@@ -294,10 +294,11 @@ foreach my $type (sort keys %classes) {
 	    
 	    my $out = "$type-$pi-${group}_trend.png";
 	    $out =~ s/ /_/g;
+	    $out = "$outdir/img/$rname/$out";
 	    
-	    unlink("$outdir/$rname/$out");
+	    unlink("$out");
 	    my $chart = Chart::Gnuplot->new(
-		output => "$outdir/img/$rname/$out",
+		output => "$out",
 		title => "$pi (trend)",
 		timefmt => '"%s"',
 		xdata => 'time',
@@ -317,16 +318,17 @@ foreach my $type (sort keys %classes) {
 
 	    eval('$chart->plot2d(@dsets);');
 	    print HIDX "<p><img src='img/$rname/$out' />";
-
+	    $json{$type}->{$pi}->{$group}->{Images}->{trend} = $out;
 
 
 	    $out = "$type-$pi-${group}_hist.png";
 	    $out =~ s/ /_/g;
+	    $out = "$outdir/img/$rname/$out";
 
-	    unlink("$outdir/$out");
+	    unlink("$out");
 	    my $cwidth = abs($maxs{$group}*1.0 - $mins{$group}*1.0)/100;
 	    my $chart_hist = Chart::Gnuplot->new(
-		output => "$outdir/img/$rname/$out",
+		output => "$out",
 		title => "$pi (histogram; bin-width = $cwidth)",
 		bg => 'white',
 		legend => {
@@ -348,6 +350,7 @@ foreach my $type (sort keys %classes) {
 	    eval('$chart_hist->plot2d(@dsets_hist);');
 
 	    print HIDX "<img src='img/$rname/$out' /></p>";
+	    $json{$type}->{$pi}->{$group}->{Images}->{histogram} = $out;
 	}
     }
 }
