@@ -52,9 +52,13 @@ my %groupings = (
 my ($from, $to, $fn_defs, $fn_data, $outdir) = @ARGV;
 my $t1 = str2time($from);
 my $t2 = str2time($to);
-$outdir =~ s@/$@@;
 die "Could not read definition file '$fn_defs'!\n" unless (-r $fn_defs);
 die "Could not read data file '$fn_data'!\n" unless (-r $fn_data);
+
+$outdir =~ s@/$@@;
+mkdir($outdir);
+mkdir("$outdir/img");
+mkdir("$outdir/raw");
 die "Output path '$outdir' is not a directory!\n" unless(-d $outdir);
 
 print STDERR 'Filter range: ', scalar localtime($t1), ' - ', scalar localtime($t2), "\n";
@@ -115,7 +119,7 @@ close(HDATA);
 
 
 print STDERR "Creating CSV data output...\n";
-my $CSV = "$outdir/data.csv";
+my $CSV = "$outdir/raw/data.csv";
 open(HOUT, '>', $CSV) || die "Could not create '$CSV': $!\n";
 my @k1 = sort {$a <=> $b} keys %keys;
 print HOUT '#TimeStamp';
@@ -289,7 +293,7 @@ foreach my $type (sort keys %classes) {
 	    
 	    unlink("$outdir/$out");
 	    my $chart = Chart::Gnuplot->new(
-		output => "$outdir/$out",
+		output => "$outdir/img/$out",
 		title => "$pi (trend)",
 		timefmt => '"%s"',
 		xdata => 'time',
@@ -308,7 +312,7 @@ foreach my $type (sort keys %classes) {
 	    setformat($group, $chart, $ctype, 'y');
 
 	    eval('$chart->plot2d(@dsets);');
-	    print HIDX "<p><img src='$out' />";
+	    print HIDX "<p><img src='img/$out' />";
 
 
 
@@ -318,7 +322,7 @@ foreach my $type (sort keys %classes) {
 	    unlink("$outdir/$out");
 	    my $cwidth = abs($maxs{$group}*1.0 - $mins{$group}*1.0)/100;
 	    my $chart_hist = Chart::Gnuplot->new(
-		output => "$outdir/$out",
+		output => "$outdir/img/$out",
 		title => "$pi (histogram; bin-width = $cwidth)",
 		bg => 'white',
 		legend => {
@@ -339,7 +343,7 @@ foreach my $type (sort keys %classes) {
 	    $chart_hist->command('hist(x,width)=width*floor(x/width)+width/2.0');
 	    eval('$chart_hist->plot2d(@dsets_hist);');
 
-	    print HIDX "<img src='$out' /></p>";
+	    print HIDX "<img src='img/$out' /></p>";
 	}
     }
 }
@@ -353,7 +357,7 @@ EOF
 
 close(HIDX);
 
-my $META = "$outdir/meta.json";
+my $META = "$outdir/raw/meta.json";
 open(HMETA, '>', $META) || die "Could not create '$META': $!\n";
 print HMETA to_json(\%json, {allow_blessed => 1, convert_blessed => 1, pretty => 1});
 close(HMETA);
