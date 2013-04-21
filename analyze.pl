@@ -214,29 +214,12 @@ close(HOUT);
 
 print STDERR "Creating graphs...\n";
 
-my $IDX = "$outdir/index.html";
-open(HIDX, '>', $IDX) || die "Could not create '$IDX': $!\n";
-print HIDX <<EOH;
-<html>
-<body>
-EOH
-
 my %json;
 foreach my $type (sort keys %classes) {
     print STDERR "\n[$type]\n";
-    print HIDX "<a name=\"$type\"><h2>$type</h2></a>\n";
-    foreach my $t (sort keys %classes) {
-	if($type ne $t) {
-	    print HIDX "[ <a href=\"#$t\">$t</a> ] ";
-	}
-	else {
-	    print HIDX "[ $t ] ";
-	}
-    }
 
     foreach my $pi (sort keys %{$classes{$type}}) {
 	print STDERR " + $pi\n";
-	print HIDX "\n<h3>$pi</h3>\n";
 
 	foreach my $group (sort keys %{ $classes{$type}->{$pi} }) {
 	    # ignore empty groups
@@ -290,8 +273,7 @@ foreach my $type (sort keys %classes) {
 	    }
 	    print STDERR "\n";
 	    
-	    print HIDX "<h4>$group</h4>\n";
-	    
+
 	    my $out = "$type-$pi-${group}_trend.png";
 	    $out =~ s/ /_/g;
 	    $out = "$outdir/img/$rname/$out";
@@ -317,7 +299,6 @@ foreach my $type (sort keys %classes) {
 	    setformat($group, $chart, $ctype, 'y');
 
 	    eval('$chart->plot2d(@dsets);');
-	    print HIDX "<p><img src='img/$rname/$out' />";
 	    $json{$type}->{$pi}->{$group}->{Images}->{trend} = $out;
 
 
@@ -347,22 +328,12 @@ foreach my $type (sort keys %classes) {
 
 	    $chart_hist->command("width=$cwidth");
 	    $chart_hist->command('hist(x,width)=width*floor(x/width)+width/2.0');
-	    eval('$chart_hist->plot2d(@dsets_hist);');
 
-	    print HIDX "<img src='img/$rname/$out' /></p>";
+	    eval('$chart_hist->plot2d(@dsets_hist);');
 	    $json{$type}->{$pi}->{$group}->{Images}->{histogram} = $out;
 	}
     }
 }
-
-print HIDX <<EOF;
-<hr />
-<small>$0</small>
-</body>
-</html>
-EOF
-
-close(HIDX);
 
 my $META = "$outdir/raw/$rname/meta.json";
 open(HMETA, '>', $META) || die "Could not create '$META': $!\n";
