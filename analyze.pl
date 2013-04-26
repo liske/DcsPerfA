@@ -26,6 +26,7 @@
 
 use Chart::Gnuplot;
 use Date::Parse;
+use File::Spec;
 use JSON;
 use Statistics::Basic qw(:all);
 use strict;
@@ -303,7 +304,7 @@ foreach my $type (sort keys %classes) {
 	    setformat($group, $chart, $ctype, 'y');
 
 	    eval('$chart->plot2d(@dsets);');
-	    $json{$type}->{$pi}->{$group}->{Images}->{trend} = $out;
+	    $json{$type}->{$pi}->{$group}->{Images}->{trend} = File::Spec->abs2rel($out, $outdir);
 
 
 	    $out = "$type-$pi-${group}_hist.png";
@@ -334,7 +335,7 @@ foreach my $type (sort keys %classes) {
 	    $chart_hist->command('hist(x,width)=width*floor(x/width)+width/2.0');
 
 	    eval('$chart_hist->plot2d(@dsets_hist);');
-	    $json{$type}->{$pi}->{$group}->{Images}->{histogram} = $out;
+	    $json{$type}->{$pi}->{$group}->{Images}->{histogram} = File::Spec->abs2rel($out, $outdir);
 	}
     }
 }
