@@ -66,6 +66,7 @@ mkdir("$outdir/raw");
 mkdir("$outdir/raw/$rname");
 die "Output path '$outdir' is not a directory!\n" unless(-d $outdir);
 
+print STDERR "Name: $rname\n";
 print STDERR 'Filter range: ', scalar localtime($t1), ' - ', scalar localtime($t2), "\n";
 
 
