@@ -68,7 +68,7 @@ die "Output path '$outdir' is not a directory!\n" unless(-d $outdir);
 
 print STDERR "Name: $rname\n";
 print STDERR 'Filter range: ', scalar localtime($t1), ' - ', scalar localtime($t2), "\n";
-
+print STDERR "Output directory: $outdir\n\n";
 
 # read definitions from export
 print STDERR "Reading definitions...\n";
