@@ -70,6 +70,18 @@ print STDERR "Name: $rname\n";
 print STDERR 'Filter range: ', scalar localtime($t1), ' - ', scalar localtime($t2), "\n";
 print STDERR "Output directory: $outdir\n\n";
 
+# save meta data
+my $META = "$outdir/raw/$rname/meta.json";
+open(HMETA, '>', $META) || die "Could not create '$META': $!\n";
+print HMETA to_json({
+    cmdline => join(' ', $0, @ARGV),
+    ffrom_ut => $t1,
+    ffrom_lt => scalar localtime($t1),
+    fto_ut => $t2,
+    fto_lt => scalar localtime($t2),
+}, {allow_blessed => 1, convert_blessed => 1, pretty => 1});
+close(HMETA);
+
 # read definitions from export
 print STDERR "Reading definitions...\n";
 my %classes;
@@ -342,11 +354,11 @@ foreach my $type (sort keys %classes) {
 }
 
 
-# save meta data
-my $META = "$outdir/raw/$rname/meta.json";
-open(HMETA, '>', $META) || die "Could not create '$META': $!\n";
-print HMETA to_json(\%json, {allow_blessed => 1, convert_blessed => 1, pretty => 1});
-close(HMETA);
+# save counter data
+my $COUNTERS = "$outdir/raw/$rname/counters.json";
+open(HCOUNTERS, '>', $COUNTERS) || die "Could not create '$COUNTERS': $!\n";
+print HCOUNTERS to_json(\%json, {allow_blessed => 1, convert_blessed => 1, pretty => 1});
+close(HCOUNTERS);
 
 
 # update/create manifest
