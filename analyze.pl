@@ -302,7 +302,7 @@ foreach my $type (sort keys %classes) {
 		title => "$pi (trend)",
 		timefmt => '"%s"',
 		xdata => 'time',
-		bg => 'white',
+#		bg => 'white',
 		legend => {
 		    position => 'below',
 		},
@@ -329,7 +329,7 @@ foreach my $type (sort keys %classes) {
 	    my $chart_hist = Chart::Gnuplot->new(
 		output => "$out",
 		title => "$pi (histogram; bin-width = $cwidth)",
-		bg => 'white',
+#		bg => 'white',
 		legend => {
 		    position => 'below',
 		},
