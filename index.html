@@ -9,7 +9,6 @@
 .ui-menu .ui-menu-item {
     margin:10px;
     padding: 0;
-    zoom: 1;
     float: left;
 
     width: auto;
@@ -26,8 +25,15 @@
 }
 
 div.drag {
-    width: auto;
     clear: none;
+    float: left;
+    position: relative;
+}
+
+div.close {
+    position: absolute;
+    top: 0;
+    left: 98%;
 }
     </style>
 </head>
@@ -112,14 +118,21 @@ function init_run() {
 		});
 	    }
 	    $.each(add, function(i, id) {
-		var div = $('<div/>', {
+		$.each(['trend', 'histogram'], function(j, n) {
+		    var close = $('<div/>', {
+			title: 'close',
+			class: 'close',
+			html: '<b>x</b>',
+		    });
+		    close.click(function() {
+			alert('Close!');
+		    });
+
+		    $('<div/>', {
 			id: id,
 			title: titles[id],
 			class: 'drag',
-		}).appendTo('#div_content').draggable();
-
-		$.each(['trend', 'histogram'], function(j, n) {
-		    div.append('<img src="' + refs[id]['Images'][n] + '"/>')
+		    }).appendTo('#div_content').draggable().append('<img src="' + refs[id]['Images'][n] + '"/>').append(close);
 		});
 	    });
         }
