@@ -33,6 +33,9 @@ padding: 2px .2em;
 <div id="div_menu">
 </div>
 
+<div id="div_content">
+</div>
+
 <script>
     var $rname;
     var $runs = { };
@@ -63,17 +66,17 @@ function init_run() {
 	"<b>Time Range  :</b> " + $meta[$rname]['ffrom_lt'] + " - " + $meta[$rname]['fto_lt'] + "\n" + 
 	"<b>Command Line:</b> " + $meta[$rname]['cmdline']);
 
-    pirefs = { };
-    corefs = { };
+    refs = { };
+    titles = { };
     hc = [ '<ul id="menu">' ];
     $.each(sorted_keys($counters[$rname]), function(i, ty) {
 	pi = $counters[$rname][ty];
 	hc.push('<li id="#ty_' + ty + '"><a href="#">' + ty + '</a><ul>');
 	$.each(sorted_keys(pi), function(j, gr) {
-	    pirefs['#pi_' + i + '_' + j] = pi[gr];
-	    hc.push('<li id="#pi_' + i + '_' + j + '"><a href="#">' + gr + '</a><ul>');
+	    hc.push('<li id="#gr_' + i + '_' + j + '"><a href="#">' + gr + '</a><ul>');
 	    $.each(sorted_keys(pi[gr]), function(k, co) {
-		corefs['#co_' + i + '_' + j + '_' + k] = pi[gr][co];
+		refs['co_' + i + '_' + j + '_' + k] = pi[gr][co];
+		titles['co_' + i + '_' + j + '_' + k] = gr + ': ' + co;
 		hc.push('<li id="#co_' + i + '_' + j + '_' + k + '"><a href="#">' + co + '</a></li>');
 	    });
 	    hc.push('</ul></li>');
@@ -84,13 +87,27 @@ function init_run() {
     $('#div_menu').html($(hc.join("\n")));
     $('#menu').menu({
         select: function (event, ui) {
-	    var id = ui.item[0].id;
-	    if(id in pirefs) {
-		alert("PI Selected: " + id);
+	    var id = ui.item[0].id.substring(1);
+	    var add = [ ];
+
+	    if(id in refs) {
+		add.push(id);
 	    }
-	    else if(id in corefs) {
-		alert("CO Selected: " + id);
+	    else if(id.substring(0, 3) == 'gr_') {
+		id = 'co' + id.substring(2) + '_';
+		len = id.length;
+		$.each(refs, function(k, v) {
+		    if(k.substring(0, len) == id) {
+			add.push(k);
+		    }
+		});
 	    }
+	    $.each(add, function(i, id) {
+		$('<div/>', {
+		    id: id,
+		    title: titles[id],
+		}).appendTo('#div_content').append('<img src="' + refs[id]['Images']['trend'] + '"/>');;
+	    });
         }
     });
 }
