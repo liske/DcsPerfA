@@ -15,7 +15,7 @@ float: left;
 clear: none;
 width: auto;
 }
-#nav li { width: auto; clear: none; }
+#menu li { width: auto; clear: none; }
 
 .ui-menu .ui-menu-item a{
 padding: 2px .2em;
@@ -63,17 +63,18 @@ function init_run() {
 	"<b>Time Range  :</b> " + $meta[$rname]['ffrom_lt'] + " - " + $meta[$rname]['fto_lt'] + "\n" + 
 	"<b>Command Line:</b> " + $meta[$rname]['cmdline']);
 
-    mirefs = { };
+    pirefs = { };
+    corefs = { };
     hc = [ '<ul id="menu">' ];
     $.each(sorted_keys($counters[$rname]), function(i, ty) {
 	pi = $counters[$rname][ty];
-	hc.push('<li id="#li_' + ty + '"><a href="#">' + ty + '</a>');
-	hc.push('<ul id="#ul_' + ty + '">');
+	hc.push('<li id="#ty_' + ty + '"><a href="#">' + ty + '</a><ul>');
 	$.each(sorted_keys(pi), function(j, gr) {
-	    mirefs['#mi_' + i + '_' + j] = pi[gr];
-	    hc.push('<li id="#mi_' + i + '_' + j + '"><a href="#">' + gr + '</a><ul>');
+	    pirefs['#pi_' + i + '_' + j] = pi[gr];
+	    hc.push('<li id="#pi_' + i + '_' + j + '"><a href="#">' + gr + '</a><ul>');
 	    $.each(sorted_keys(pi[gr]), function(k, co) {
-		hc.push('<li id="#mi_' + i + '_' + j + '_' + k + '"><a href="#">' + co + '</a></li>');
+		corefs['#co_' + i + '_' + j + '_' + k] = pi[gr][co];
+		hc.push('<li id="#co_' + i + '_' + j + '_' + k + '"><a href="#">' + co + '</a></li>');
 	    });
 	    hc.push('</ul></li>');
 	});
@@ -82,12 +83,15 @@ function init_run() {
     hc.push('</ul>');
     $('#div_menu').html($(hc.join("\n")));
     $('#menu').menu({
-                select: function (event, ui) {
-		    var id = ui.item[0].id;
-		    if(id in mirefs) {
-			alert("Selected: " + id);
-		    }
-                }
+        select: function (event, ui) {
+	    var id = ui.item[0].id;
+	    if(id in pirefs) {
+		alert("PI Selected: " + id);
+	    }
+	    else if(id in corefs) {
+		alert("CO Selected: " + id);
+	    }
+        }
     });
 }
 
