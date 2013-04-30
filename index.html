@@ -6,6 +6,11 @@
     <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
     <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
     <style>
+#menu {
+    height: 50px;
+    background: #ffd0d0;
+}
+
 .ui-menu .ui-menu-item {
     margin:10px;
     padding: 0;
@@ -28,6 +33,10 @@ div.drag {
     clear: none;
     float: left;
     position: relative;
+    margin: 5px;
+    border-style: ridge;
+    border-width: 3px;
+    border-color: grey;
 }
 
 div.close {
@@ -40,7 +49,7 @@ div.close {
 <body>
 <h1>DataCore Performance Analyzer</h1>
 
-<div id="div_meta" style="background: lightgreen">
+<div id="div_meta">
 <pre><b>Run Name    :</b> <select id="sel_run"></select></pre>
 <pre id="meta"></pre>
 </div>
@@ -125,7 +134,7 @@ function init_run() {
 			html: '<b>x</b>',
 		    });
 		    close.click(function() {
-			alert('Close!');
+			$('#' + id).remove();
 		    });
 
 		    $('<div/>', {
@@ -155,7 +164,8 @@ $('#sel_run').change(function() {
 });
 
 $.getJSON('raw/manifest.json', function(data) {
-    $.each(data, function(key, val) {
+    $.each(sorted_keys(data), function(i, key) {
+	val = data[key];
 	$('#sel_run').append($('<option>', {
 	    value: key,
 	    text: key,
