@@ -7,18 +7,27 @@
     <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
     <style>
 .ui-menu .ui-menu-item {
-margin:10px;
-padding: 0;
-zoom: 1;
-float: left;
+    margin:10px;
+    padding: 0;
+    zoom: 1;
+    float: left;
 
-clear: none;
-width: auto;
+    width: auto;
+    clear: none;
 }
-#menu li { width: auto; clear: none; }
 
-.ui-menu .ui-menu-item a{
-padding: 2px .2em;
+#menu li {
+    width: auto;
+    clear: none;
+}
+
+.ui-menu .ui-menu-item a {
+    padding: 2px .2em;
+}
+
+div.drag {
+    width: auto;
+    clear: none;
 }
     </style>
 </head>
@@ -106,6 +115,7 @@ function init_run() {
 		$('<div/>', {
 		    id: id,
 		    title: titles[id],
+		    class: 'drag',
 		}).appendTo('#div_content').draggable().append('<img src="' + refs[id]['Images']['trend'] + '"/>');
 	    });
         }
