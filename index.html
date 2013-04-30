@@ -70,8 +70,12 @@ function init_run() {
 	hc.push('<li id="#li_' + ty + '"><a href="#">' + ty + '</a>');
 	hc.push('<ul id="#ul_' + ty + '">');
 	$.each(sorted_keys(pi), function(j, gr) {
-	    hc.push('<li id="#mi_' + i + '_' + j + '"><a href="#">' + gr + '</a></li>');
 	    mirefs['#mi_' + i + '_' + j] = pi[gr];
+	    hc.push('<li id="#mi_' + i + '_' + j + '"><a href="#">' + gr + '</a><ul>');
+	    $.each(sorted_keys(pi[gr]), function(k, co) {
+		hc.push('<li id="#mi_' + i + '_' + j + '_' + k + '"><a href="#">' + co + '</a></li>');
+	    });
+	    hc.push('</ul></li>');
 	});
 	hc.push('</ul></li>');
     });
