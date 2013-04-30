@@ -106,7 +106,7 @@ function init_run() {
 		$('<div/>', {
 		    id: id,
 		    title: titles[id],
-		}).appendTo('#div_content').append('<img src="' + refs[id]['Images']['trend'] + '"/>');;
+		}).appendTo('#div_content').draggable().append('<img src="' + refs[id]['Images']['trend'] + '"/>');
 	    });
         }
     });
