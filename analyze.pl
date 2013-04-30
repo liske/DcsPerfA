@@ -32,7 +32,7 @@ use Statistics::Basic qw(:all);
 use strict;
 use warnings;
 
-die "Usage: $0 <from> <to> <defs.csv> <data.csv> <output dir> [name]\n" unless($#ARGV == 4);
+die "Usage: $0 <from> <to> <defs.csv> <data.csv> <output dir> [name]\n" unless($#ARGV == 4 || $#ARGV == 5);
 
 use constant {
     GNUPLOT_TIME_OFFSET => 946684800,
