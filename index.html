@@ -112,11 +112,15 @@ function init_run() {
 		});
 	    }
 	    $.each(add, function(i, id) {
-		$('<div/>', {
-		    id: id,
-		    title: titles[id],
-		    class: 'drag',
-		}).appendTo('#div_content').draggable().append('<img src="' + refs[id]['Images']['trend'] + '"/>');
+		var div = $('<div/>', {
+			id: id,
+			title: titles[id],
+			class: 'drag',
+		}).appendTo('#div_content').draggable();
+
+		$.each(['trend', 'histogram'], function(j, n) {
+		    div.append('<img src="' + refs[id]['Images'][n] + '"/>')
+		});
 	    });
         }
     });
