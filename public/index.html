@@ -6,28 +6,6 @@
     <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
     <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
     <style>
-#menu {
-    height: 50px;
-    background: #ffd0d0;
-}
-
-.ui-menu .ui-menu-item {
-    margin:10px;
-    padding: 0;
-    float: left;
-
-    width: auto;
-    clear: none;
-}
-
-#menu li {
-    width: auto;
-    clear: none;
-}
-
-.ui-menu .ui-menu-item a {
-    padding: 2px .2em;
-}
 
 div.drag {
     clear: none;
@@ -44,17 +22,55 @@ div.close {
     top: 0;
     left: 98%;
 }
+
+th {
+    text-align: right;
+}
     </style>
 </head>
 <body>
 <h1>DataCore Performance Analyzer</h1>
 
 <div id="div_meta">
-<pre><b>Run Name    :</b> <select id="sel_run"></select></pre>
-<pre id="meta"></pre>
-</div>
+<table>
+    <tr>
+	<th>Run Name:</th>
+	<td><select id="sel_run"></select></td>
+    </tr>
+    <tr>
+    </tr>
+    <tr>
+	<th>X:</th>
+	<td>
+	    <ul id="ul-menu-x">
+		<li>
+		    <a id="a-sel-x" href="#">Time</a>
+		    <ul id="ul-submenu-x"></ul>
+		</li>
+	    </ul>
+	</td>
+	<th>Y:</th>
+	<td>
+	    <ul id="ul-menu-y">
+		<li>
+		    <a id="a-sel-y" href="#">-</a>
+		    <ul id="ul-submenu-y"></ul>
+		</li>
+	    </ul>
+	</td>
+	<th>Z:</th>
+	<td>
+	    <ul id="ul-menu-z">
+		<li>
+		    <a id="a-sel-z" href="#">-</a>
+		    <ul id="ul-submenu-z"></ul>
+		</li>
+	    </ul>
+	</td>
+    </tr>
+</table>
 
-<div id="div_menu">
+<pre id="meta"></pre>
 </div>
 
 <div id="div_content">
@@ -85,32 +101,15 @@ function sorted_keys(data) {
     return keys;
 }
 
+
 function init_run() {
+
     $('#meta').html(
 	"<b>Time Range  :</b> " + $meta[$rname]['ffrom_lt'] + " - " + $meta[$rname]['fto_lt'] + "\n" + 
 	"<b>Command Line:</b> " + $meta[$rname]['cmdline']);
 
-    refs = { };
-    titles = { };
-    hc = [ '<ul id="menu">' ];
-    $.each(sorted_keys($counters[$rname]), function(i, ty) {
-	pi = $counters[$rname][ty];
-	hc.push('<li id="#ty_' + ty + '"><a href="#">' + ty + '</a><ul>');
-	$.each(sorted_keys(pi), function(j, gr) {
-	    hc.push('<li id="#gr_' + i + '_' + j + '"><a href="#">' + gr + '</a><ul>');
-	    $.each(sorted_keys(pi[gr]), function(k, co) {
-		refs['co_' + i + '_' + j + '_' + k] = pi[gr][co];
-		titles['co_' + i + '_' + j + '_' + k] = gr + ': ' + co;
-		hc.push('<li id="#co_' + i + '_' + j + '_' + k + '"><a href="#">' + co + '</a></li>');
-	    });
-	    hc.push('</ul></li>');
-	});
-	hc.push('</ul></li>');
-    });
-    hc.push('</ul>');
-    $('#div_menu').html($(hc.join("\n")));
-    $('#menu').menu({
-        select: function (event, ui) {
+    var men_selected = function (event, ui) {
+	    $('#a-sel-' + this.id.slice(-1)).text( ui.item[0].textContent );
 	    var id = ui.item[0].id.substring(1);
 	    var add = [ ];
 
@@ -144,8 +143,35 @@ function init_run() {
 		    }).appendTo('#div_content').draggable().append('<img src="' + refs[id]['Images'][n] + '"/>').append(close);
 		});
 	    });
-        }
+    };
+
+    refs = { };
+    titles = { };
+    hc = [ ];
+    $.each(sorted_keys($counters[$rname]), function(i, ty) {
+	pi = $counters[$rname][ty];
+	hc.push('<li id="#ty_' + ty + '"><a href="#">' + ty + '</a><ul>');
+	$.each(sorted_keys(pi), function(j, gr) {
+	    hc.push('<li id="#gr_' + i + '_' + j + '"><a href="#">' + gr + '</a><ul>');
+	    $.each(sorted_keys(pi[gr]), function(k, co) {
+		refs['co_' + i + '_' + j + '_' + k] = pi[gr][co];
+		titles['co_' + i + '_' + j + '_' + k] = gr + ': ' + co;
+		hc.push('<li id="#co_' + i + '_' + j + '_' + k + '"><a href="#">' + co + '</a></li>');
+	    });
+	    hc.push('</ul></li>');
+	});
+	hc.push('</ul></li>');
     });
+
+    var axis = ['x', 'y', 'z'];
+    for (i in axis) {
+	var a = axis[i];
+
+	$('#ul-submenu-' + a).html($(hc.join("\n")));
+	$('#ul-menu-' + a).menu({
+	    select: men_selected,
+	});
+    }
 }
 
 $('#sel_run').change(function() {
