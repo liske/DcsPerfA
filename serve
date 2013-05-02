@@ -33,4 +33,9 @@ get '/' => sub {
   $self->render_static('index.html');
 };
 
+get '/raw' => sub {
+  my $self = shift;
+  $self->render_static('/raw');
+};
+
 app->start;
