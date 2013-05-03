@@ -38,17 +38,19 @@ th {
 	<td><select id="sel_run"></select></td>
     </tr>
     <tr>
-    <tr>
-	<th>Graph:</th>
+	<th>Presentation:</th>
 	<td id="rad_graph">
 	    <input type="radio" name="graph" id="inp_trend" selected="1" /><label for="inp_trend">trend</label>
 	    <input type="radio" name="graph" id="inp_histogram" /><label for="inp_histogram">histogram</label>
 	    <input type="radio" name="graph" id="inp_correlation" /><label for="inp_correlation">correlation</label>
 	</td>
     </tr>
+    <tr>
+	<th>Time Frame:</th>
+	<td><div id="sli_range"></div></td>
     </tr>
     <tr>
-	<th>X:</th>
+	<th>X Axis:</th>
 	<td>
 	    <ul id="ul-menu-x">
 		<li>
@@ -57,7 +59,7 @@ th {
 		</li>
 	    </ul>
 	</td>
-	<th>Y:</th>
+	<th>Y Axis:</th>
 	<td>
 	    <ul id="ul-menu-y">
 		<li>
@@ -66,7 +68,7 @@ th {
 		</li>
 	    </ul>
 	</td>
-	<th>Z:</th>
+	<th>Z Axis:</th>
 	<td>
 	    <ul id="ul-menu-z">
 		<li>
@@ -112,6 +114,13 @@ function sorted_keys(data) {
 
 function init_run() {
     $( "#rad_graph" ).buttonset();
+    $( "#sli_range" ).slider({
+	min: $meta[$rname]['ffrom_ut'],
+	max: $meta[$rname]['fto_ut'],
+	values: [$meta[$rname]['ffrom_ut'], $meta[$rname]['fto_ut']],
+	range: true,
+	step: 7200,
+    });
 
     $('#meta').html(
 	"<b>Time Range  :</b> " + $meta[$rname]['ffrom_lt'] + " - " + $meta[$rname]['fto_lt'] + "\n" + 
