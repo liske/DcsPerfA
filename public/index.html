@@ -38,6 +38,14 @@ th {
 	<td><select id="sel_run"></select></td>
     </tr>
     <tr>
+    <tr>
+	<th>Graph:</th>
+	<td id="rad_graph">
+	    <input type="radio" name="graph" id="inp_trend" selected="1" /><label for="inp_trend">trend</label>
+	    <input type="radio" name="graph" id="inp_histogram" /><label for="inp_histogram">histogram</label>
+	    <input type="radio" name="graph" id="inp_correlation" /><label for="inp_correlation">correlation</label>
+	</td>
+    </tr>
     </tr>
     <tr>
 	<th>X:</th>
@@ -103,6 +111,7 @@ function sorted_keys(data) {
 
 
 function init_run() {
+    $( "#rad_graph" ).buttonset();
 
     $('#meta').html(
 	"<b>Time Range  :</b> " + $meta[$rname]['ffrom_lt'] + " - " + $meta[$rname]['fto_lt'] + "\n" + 
