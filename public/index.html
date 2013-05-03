@@ -50,6 +50,10 @@ th {
 	<td><div id="sli_range"></div></td>
     </tr>
     <tr>
+	<th></th>
+	<td id="txt_range"></td>
+    </tr>
+    <tr>
 	<th>X Axis:</th>
 	<td>
 	    <ul id="ul-menu-x">
@@ -119,8 +123,11 @@ function init_run() {
 	max: $meta[$rname]['fto_ut'],
 	values: [$meta[$rname]['ffrom_ut'], $meta[$rname]['fto_ut']],
 	range: true,
-	step: 7200,
-    });
+	step: 120,
+	change: function(event, ui) {
+	    $('#txt_range').text( new Date(ui.values[0]*1000).toISOString() + ' - ' + new Date(ui.values[1]*1000).toISOString() );
+	},
+    }).slider( 'value', $( '#sli_range' ).slider('value') );
 
     $('#meta').html(
 	"<b>Time Range  :</b> " + $meta[$rname]['ffrom_lt'] + " - " + $meta[$rname]['fto_lt'] + "\n" + 
