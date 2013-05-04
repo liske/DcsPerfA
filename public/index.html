@@ -38,6 +38,10 @@ th {
 	<td><select id="sel_run"></select></td>
     </tr>
     <tr>
+	<th></th>
+	<td><pre id="meta"></pre></td>
+    </tr>
+    <tr>
 	<th>Presentation:</th>
 	<td id="rad_graph">
 	    <input type="radio" name="graph" id="inp_trend" selected="1" /><label for="inp_trend">trend</label>
@@ -54,37 +58,62 @@ th {
 	<td id="txt_range"></td>
     </tr>
     <tr>
-	<th>X Axis:</th>
+	<th>Axes:</th>
 	<td>
+	    <table>
+		<tr>
+		    <th>X&nbsp;&rarr;</th>
+		    <td>
 	    <ul id="ul-menu-x">
 		<li>
 		    <a id="a-sel-x" href="#">Time</a>
 		    <ul id="ul-submenu-x"></ul>
 		</li>
 	    </ul>
+		    </td>
+		</tr>
+	    </table>
 	</td>
-	<th>Y Axis:</th>
+    </tr>
+    <tr>
+	<th></th>
 	<td>
+	    <table>
+		<tr>
+		    <th>Y&nbsp;&rarr;</th>
+		    <td>
 	    <ul id="ul-menu-y">
 		<li>
 		    <a id="a-sel-y" href="#">-</a>
 		    <ul id="ul-submenu-y"></ul>
 		</li>
 	    </ul>
+		    </td>
+		</tr>
+	    </table>
 	</td>
-	<th>Z Axis:</th>
+    </tr>
+    <tr>
+	<th></th>
 	<td>
+	    <table>
+		<tr>
+		    <th>Z&nbsp;&rarr;</th>
+		    <td>
 	    <ul id="ul-menu-z">
 		<li>
 		    <a id="a-sel-z" href="#">-</a>
 		    <ul id="ul-submenu-z"></ul>
 		</li>
 	    </ul>
+		    </td>
+		</tr>
+	    </table>
 	</td>
     </tr>
 </table>
 
-<pre id="meta"></pre>
+
 </div>
 
 <div id="div_content">
@@ -125,13 +154,13 @@ function init_run() {
 	range: true,
 	step: 120,
 	change: function(event, ui) {
-	    $('#txt_range').text( new Date(ui.values[0]*1000).toISOString() + ' - ' + new Date(ui.values[1]*1000).toISOString() );
+	    var df = new Date(ui.values[0]*1000);
+	    var dt = new Date(ui.values[1]*1000);
+	    $('#txt_range').text( df.toLocaleString() + ' - ' + dt.toLocaleString() );
 	},
     }).slider( 'value', $( '#sli_range' ).slider('value') );
 
-    $('#meta').html(
-	"<b>Time Range  :</b> " + $meta[$rname]['ffrom_lt'] + " - " + $meta[$rname]['fto_lt'] + "\n" + 
-	"<b>Command Line:</b> " + $meta[$rname]['cmdline']);
+    $('#meta').text($meta[$rname]['cmdline']);
 
     var men_selected = function (event, ui) {
 	    $('#a-sel-' + this.id.slice(-1)).text( ui.item[0].textContent );
