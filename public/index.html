@@ -42,9 +42,12 @@ th {
 	<td><pre id="meta"></pre></td>
     </tr>
     <tr>
+	<th colspan="2"><hr/></th>
+    </tr>
+    <tr>
 	<th>Presentation:</th>
 	<td id="rad_graph">
-	    <input type="radio" name="graph" id="inp_trend" selected="1" /><label for="inp_trend">trend</label>
+	    <input type="radio" name="graph" id="inp_trend" checked="1" /><label for="inp_trend">trend</label>
 	    <input type="radio" name="graph" id="inp_histogram" /><label for="inp_histogram">histogram</label>
 	    <input type="radio" name="graph" id="inp_correlation" /><label for="inp_correlation">correlation</label>
 	</td>
@@ -111,6 +114,10 @@ th {
 	    </table>
 	</td>
     </tr>
+    <tr>
+	<th></th>
+	<td><button id="btn_apply">Apply</button> <button id="btn_add">Add</button></td>
+    </tr>
 </table>
 
 
@@ -146,7 +153,6 @@ function sorted_keys(data) {
 
 
 function init_run() {
-    $( "#rad_graph" ).buttonset();
     $( "#sli_range" ).slider({
 	min: $meta[$rname]['ffrom_ut'],
 	max: $meta[$rname]['fto_ut'],
@@ -260,6 +266,12 @@ $.getJSON('raw/manifest.json', function(data) {
     });
 
     $('#sel_run').change();
+});
+
+$(function() {
+    $('#rad_graph').buttonset();
+    $('#btn_apply').button();
+    $('#btn_add').button();
 });
 </script>
 </body>
