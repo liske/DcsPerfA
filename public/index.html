@@ -5,6 +5,7 @@
     <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.10.3/jquery-ui.min.css"/>
     <script src="js/jquery-1.9.1.min.js"></script>
     <script src="js/jquery-ui-1.10.3/jquery-ui.min.js"></script>
+    <script src="js/DPAGraphs.js"></script>
     <style>
 
 div.drag {
@@ -127,6 +128,7 @@ th {
 </div>
 
 <script>
+var $graph;
 var $rname;
 var $runs = { };
 var $meta = { };
@@ -270,8 +272,13 @@ $.getJSON('raw/manifest.json', function(data) {
 
 $(function() {
     $('#rad_graph').buttonset();
-    $('#btn_apply').button();
-    $('#btn_add').button();
+    $('#btn_apply').button({
+	disabled: true,
+	icons: { primary: 'ui-icon-pencil' },
+    });
+    $('#btn_add').button({
+	icons: { primary: 'ui-icon-plus' },
+    });
 });
 </script>
 </body>
