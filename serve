@@ -33,6 +33,16 @@ get '/' => sub {
   $self->render_static('index.html');
 };
 
+get '/css' => sub {
+  my $self = shift;
+  $self->render_static('/css');
+};
+
+get '/js' => sub {
+  my $self = shift;
+  $self->render_static('/js');
+};
+
 get '/raw' => sub {
   my $self = shift;
   $self->render_static('/raw');
