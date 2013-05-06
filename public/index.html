@@ -16,6 +16,7 @@ div.drag {
     border-style: ridge;
     border-width: 3px;
     border-color: grey;
+    cursor: pointer;
 }
 
 div.close {
@@ -36,7 +37,7 @@ th {
 <table>
     <tr>
 	<th>Run Name:</th>
-	<td><select id="sel_run"></select></td>
+	<td><select id="sel_run"></select> <button id="btn_upload">Upload</button> <button id="btn_drop">Drop</button> </td>
     </tr>
     <tr>
 	<th></th>
@@ -211,7 +212,7 @@ function init_run() {
 			id: id,
 			title: titles[id],
 			class: 'drag',
-		    }).appendTo('#div_content').draggable().append('<img src="' + refs[id]['Images'][n] + '"/>').append(close);
+		    }).appendTo('#div_content').draggable().append('<img src=""/>').append(close);
 		});
 	    });
     };
@@ -240,6 +241,7 @@ function init_run() {
 
 	$('#ul-submenu-' + a).html($(hc.join("\n")));
 	$('#ul-menu-' + a).menu({
+	    disabled: (a == 'y' ? false : true),
 	    select: men_selected,
 	});
     }
@@ -281,16 +283,32 @@ $.getJSON('raw/manifest.json', function(data) {
 
 $(function() {
     $('#rad_graph').buttonset();
+
     $('#btn_apply').button({
 	disabled: true,
 	icons: { primary: 'ui-icon-pencil' },
     }).click(function() {
 	DPAGraphs.updateGraph($graph, getParams());
     });
+
     $('#btn_add').button({
 	icons: { primary: 'ui-icon-plus' },
     }).click(function() {
 	$graph = DPAGraphs.addGraph('#div_content', getParams());
+    });
+
+    $('#btn_upload').button({
+	disabled: true,
+	icons: { primary: 'ui-icon-plus' },
+    }).click(function() {
+	// TODO
+    });
+
+    $('#btn_drop').button({
+	disabled: true,
+	icons: { primary: 'ui-icon-minus' },
+    }).click(function() {
+	// TODO
     });
 });
 </script>
