@@ -210,26 +210,28 @@ close(HOUT);
 # create graph drawings
 print STDERR "Creating graphs...\n";
 
-sub setformat($$$$) {
-    my($group, $chart, $ctype, $axis) = @_;
+sub getFormat($$) {
+    my($group, $ctype) = @_;
 
     my $ps = ($ctype eq 'Delta' ? '/s' : '');
 
     if($group =~ /Byte/) {
-	$chart->command("set format $axis \"%.1s %cb$ps\"");
+	return "\"%.1s %cb$ps\"";
     }
     elsif($group =~ /Time/) {
-	$chart->command("set format $axis \"%.1s %cs$ps\"");
+	return "\"%.1s %cs$ps\"";
     }
     elsif($group =~ /Percent/) {
-	$chart->command("set format $axis \"%.1s %%$ps\"");
+	return "\"%.1s %%$ps\"";
     }
     elsif($group =~ /IOPs/) {
-	$chart->command("set format $axis \"%.1s %cIO$ps\"");
+	return "\"%.1s %cIO$ps\"";
     }
     else {
-	$chart->command("set format $axis \"%.1s %c$ps\"");
+	return "\"%.1s %c$ps\"";
     }
+
+    return undef;
 }
 
 my %json;
@@ -244,9 +246,7 @@ foreach my $type (sort keys %classes) {
 	    next unless(defined($mins{$group}));
 	    next if($mins{$group} == 0 && $maxs{$group} == 0);
 
-	    my @dsets;
-	    my @dsets_hist;
-	    my $ctype;
+ 	    my $ctype;
 
 	    print STDERR "   -";
 	    foreach my $counter (sort keys %{$classes{$type}->{$pi}->{$group} }) {
@@ -265,90 +265,18 @@ foreach my $type (sort keys %classes) {
 		    next;
 		}
 
-		my $i = $indexes{ $k1 }->{ $k2 };
-		push(@dsets, Chart::Gnuplot::DataSet->new(
-			 datafile => $CSV,
-			 using => "1:$i smooth csplines",
-			 title => $counter,
-			 style => 'lines lw 3',
-		     ));
-		push(@dsets_hist, Chart::Gnuplot::DataSet->new(
-			 datafile => $CSV,
-			 using => "(hist(\$$i,width)):(100.0/$keys{$k1}->{$k2}) smooth freq",
-			 title => $counter,
-			 style => 'steps lw 3',
-		     ));
-
 		%{ $json{$type}->{$pi}->{$group}->{Counters}->{$counter} } = %{ $classes{$type}->{$pi}->{$group}->{$counter} };
+		$json{$type}->{$pi}->{$group}->{Counters}->{$counter}->{index} = $indexes{ $k1 }->{ $k2 };
 		$json{$type}->{$pi}->{$group}->{Counters}->{$counter}->{stats}->{mean} = mean( $vectors{$k1}->{$k2} )->query;
 		$json{$type}->{$pi}->{$group}->{Counters}->{$counter}->{stats}->{median} = median( $vectors{$k1}->{$k2} )->query;
 		$json{$type}->{$pi}->{$group}->{Counters}->{$counter}->{stats}->{var} = var( $vectors{$k1}->{$k2} )->query;
 		$json{$type}->{$pi}->{$group}->{Counters}->{$counter}->{stats}->{stddev} = stddev( $vectors{$k1}->{$k2} )->query;
 	    }
-	    if($#dsets == -1) {
-		print STDERR " SKIPPED\n";
-		next;
-	    }
 	    print STDERR "\n";
-	    
 
-	    my $out = "$type-$pi-${group}_trend.png";
-	    $out =~ s/ /_/g;
-	    $out = "$outdir/img/$rname/$out";
-	    
-	    unlink("$out");
-	    my $chart = Chart::Gnuplot->new(
-		output => "$out",
-		title => "$pi (trend)",
-		timefmt => '"%s"',
-		xdata => 'time',
-#		bg => 'white',
-		legend => {
-		    position => 'below',
-		},
-		xrange => [$t1 - GNUPLOT_TIME_OFFSET, $t2 - GNUPLOT_TIME_OFFSET],
-		yrange => [($mins{$group} < 0 ? $mins{$group}*1.1 : 0), $maxs{$group}*1.1],
-		grid => {
-		    width => 1,
-		},
-		tics => 'out',
-		);
-
-	    setformat($group, $chart, $ctype, 'y');
-
-	    eval('$chart->plot2d(@dsets);');
-	    $json{$type}->{$pi}->{$group}->{Images}->{trend} = File::Spec->abs2rel($out, $outdir);
-
-
-	    $out = "$type-$pi-${group}_hist.png";
-	    $out =~ s/ /_/g;
-	    $out = "$outdir/img/$rname/$out";
-
-	    unlink("$out");
-	    my $cwidth = abs($maxs{$group}*1.0 - $mins{$group}*1.0)/100;
-	    my $chart_hist = Chart::Gnuplot->new(
-		output => "$out",
-		title => "$pi (histogram; bin-width = $cwidth)",
-#		bg => 'white',
-		legend => {
-		    position => 'below',
-		},
-		xrange => [($mins{$group} < 0 ? $mins{$group} : 0), $maxs{$group}],
-		yrange => [0, 100],
-		grid => {
-		    width => 1,
-		},
-		tics => 'out',
-		);
-
-	    setformat($group, $chart_hist, $ctype, 'x');
-	    $chart_hist->command("set format y \"%.1s %%\""); #"
-
-	    $chart_hist->command("width=$cwidth");
-	    $chart_hist->command('hist(x,width)=width*floor(x/width)+width/2.0');
-
-	    eval('$chart_hist->plot2d(@dsets_hist);');
-	    $json{$type}->{$pi}->{$group}->{Images}->{histogram} = File::Spec->abs2rel($out, $outdir);
+	    $json{$type}->{$pi}->{$group}->{Format} = getFormat($group, $ctype);
+	    $json{$type}->{$pi}->{$group}->{Min} = $mins{$group};
+	    $json{$type}->{$pi}->{$group}->{Max} = $maxs{$group};
 	}
     }
 }
