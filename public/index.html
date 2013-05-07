@@ -164,6 +164,33 @@ function getParams() {
     };
 }
 
+function menu_builder(content, prefix, level) {
+    var ret = [ ];
+    var l = level + 1;
+
+    $.each(sorted_keys(content), function(i, key) {
+	p = prefix + ':' + key;
+	if(l < 4) { //>
+	    r = (l == 3 ?
+		menu_builder(content[key]['Counters'], p, l)
+		:
+		menu_builder(content[key], p, l)
+	    );
+
+	    if(r.length > 0) {
+		ret.push('<li id="#' + p + '"><a href="#">' + key + '</a><ul>');
+		ret.push(r);
+		ret.push('</ul></li>');
+	    }
+	}
+	else {
+	    ret.push('<li id="#' + p + '"><a href="#">' + key + '</a></li>');
+	}
+    });
+
+    return ret.join("\n");
+}
+
 function init_run() {
     $( "#sli_range" ).slider({
 	min: $meta[$rname]['ffrom_ut'],
@@ -217,29 +244,12 @@ function init_run() {
 	    });
     };
 
-    refs = { };
-    titles = { };
-    hc = [ ];
-    $.each(sorted_keys($counters[$rname]), function(i, ty) {
-	pi = $counters[$rname][ty];
-	hc.push('<li id="#ty_' + ty + '"><a href="#">' + ty + '</a><ul>');
-	$.each(sorted_keys(pi), function(j, gr) {
-	    hc.push('<li id="#gr_' + i + '_' + j + '"><a href="#">' + gr + '</a><ul>');
-	    $.each(sorted_keys(pi[gr]), function(k, co) {
-		refs['co_' + i + '_' + j + '_' + k] = pi[gr][co];
-		titles['co_' + i + '_' + j + '_' + k] = gr + ': ' + co;
-		hc.push('<li id="#co_' + i + '_' + j + '_' + k + '"><a href="#">' + co + '</a></li>');
-	    });
-	    hc.push('</ul></li>');
-	});
-	hc.push('</ul></li>');
-    });
 
     var axis = ['x', 'y', 'z'];
     for (i in axis) {
 	var a = axis[i];
 
-	$('#ul-submenu-' + a).html($(hc.join("\n")));
+	$('#ul-submenu-' + a).html($( menu_builder($counters[$rname], "menu-" + a, 0) ));
 	$('#ul-menu-' + a).menu({
 	    disabled: (a == 'y' ? false : true),
 	    select: men_selected,
