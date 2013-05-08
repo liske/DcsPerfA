@@ -164,6 +164,32 @@ function getParams() {
     };
 }
 
+function menu_getsel(content, prefix, level, path) {
+    ret = [];
+    l = level + 1;
+
+    $.each(sorted_keys(content), function(i, key) {
+	p = prefix + ':' + key;
+	if(l < 4) { //>
+	    r = (l == 3 ?
+		    ret.push( menu_getsel(content[key]['Counters'], p, l, path) )
+		:
+		    ret.concat( menu_getsel(content[key], p, l, path) )
+	    );
+
+	    if(p.indexOf(path) == 0 && r.length > 0)
+		ret.concat(r);
+	}
+	else {
+	    if(p.indexOf(path) == 0)
+		ret.push(content[key]['index']);
+	}
+    });
+
+    if(ret.length > 0)
+	return(ret);
+}
+
 function menu_builder(content, prefix, level) {
     var ret = [ ];
     var l = level + 1;
@@ -211,6 +237,9 @@ function init_run() {
 	    $('#a-sel-' + this.id.slice(-1)).text( ui.item[0].textContent );
 	    var id = ui.item[0].id.substring(1);
 	    var add = [ ];
+
+	    rows = menu_getsel($counters[$rname], id.substring(0,6), 0, id);
+	    alert(rows);
 
 	    if(id in refs) {
 		add.push(id);
