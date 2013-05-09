@@ -134,7 +134,7 @@ var $rname;
 var $runs = { };
 var $meta = { };
 var $counters = { };
-var $rows =  { };
+var $rows =  { x: [[0]] };
 
 function sorted_keys(data) {
     var keys = [ ];
@@ -155,14 +155,16 @@ function sorted_keys(data) {
     return keys;
 }
 
-function getParams() {
+function getParams(x, y) {
     var v = $('#sli_range').slider('values');
-
+alert(x);
+alert(y);
     return {
 	ptype: $('#rad_graph :radio:checked').attr('id'),
 	from: v[0],
 	to: v[1],
-	rows: $rows,
+	x: x,
+	y: y,
     };
 }
 
@@ -296,13 +298,21 @@ $(function() {
 	disabled: true,
 	icons: { primary: 'ui-icon-pencil' },
     }).click(function() {
-	DPAGraphs.updateGraph($graph, getParams());
+	$.each($rows['x'], function(i, x) {
+	    $.each($rows['y'], function(j, y) {
+		DPAGraphs.updateGraph($graph, getParams(x, y));
+	    });
+	});
     });
 
     $('#btn_add').button({
 	icons: { primary: 'ui-icon-plus' },
     }).click(function() {
-	$graph = DPAGraphs.addGraph('#div_content', getParams());
+	$.each($rows['x'], function(i, x) {
+	    $.each($rows['y'], function(j, y) {
+		$graph = DPAGraphs.addGraph('#div_content', getParams(x, y));
+	    });
+	});
     });
 
     $('#btn_upload').button({
