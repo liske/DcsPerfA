@@ -24,9 +24,17 @@
 #   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 #
 
+use Chart::Gnuplot;
+use File::Temp qw(tempfile);
+use File::Slurp;
 use Mojolicious::Lite;
-use Mojo::IOLoop;;
+use Mojo::IOLoop;
 use JSON;
+
+use constant {
+    GNUPLOT_TIME_OFFSET => 946684800,
+    IGNORE => 'IGNORE',
+};
 
 get '/' => sub {
   my $self = shift;
@@ -50,21 +58,40 @@ get '/raw' => sub {
 
 get '/plot' => sub {
   my $self = shift;
-  $self->render(data => 
-'<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg"
-        version="1.1" baseProfile="full"
-        width="700px" height="400px" viewBox="0 0 700 400">
- 
-        <!-- Anschlüsse links und rechts -->
-        <line x1="0" y1="200" x2="700" y2="200" stroke="black" stroke-width="20px"/>
-        <!-- Das Rechteck -->
-        <rect x="100" y="100" width="500" height="200" fill="white" stroke="black" stroke-width="20px"/>
-        <!-- Der Schleifer -->
-        <line x1="180" y1="370" x2="500" y2="50" stroke="black" stroke-width="15px"/>
-        <!-- Die Pfeilspitze -->
-        <polygon points="585 0 525 25 585 50" transform="rotate(135 525 25)"/>
-</svg>', format => 'svg');
+  my $params = decode_json( $self->param('params') );
+
+  my @dsets;
+  foreach my $y (@{$params->{y}}) {
+    push(@dsets, Chart::Gnuplot::DataSet->new(
+	datafile => 'public/raw/run1/data.csv',
+	using => "1:$y smooth csplines",
+	title => "Row $y",
+	style => 'lines lw 3',
+    ));
+  }
+
+  my ($fh, $fn) = tempfile('plot-XXXXXXXX', TMPDIR => 1, SUFFIX => '.png');
+  close($fh);
+
+  my $chart = Chart::Gnuplot->new(
+    output => $fn,
+    timefmt => '"%s"',
+    xdata => 'time',
+    legend => {
+	position => 'below',
+    },
+    xrange => [$params->{from} - GNUPLOT_TIME_OFFSET, $params->{to} - GNUPLOT_TIME_OFFSET],
+    grid => {
+	width => 1,
+    },
+    tics => 'out',
+  );
+  $chart->plot2d(@dsets);
+
+  my $data = read_file($fn);
+  unlink($fn);
+
+  $self->render(data => $data , format => 'png');
 };
 
 my @chars = ('a'..'z', 'A'..'Z', 0..9);
