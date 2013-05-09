@@ -25,6 +25,8 @@
 #
 
 use Chart::Gnuplot;
+use Cwd qw(abs_path);
+use File::Basename;
 use File::Temp qw(tempfile);
 use File::Slurp;
 use Mojolicious::Lite;
@@ -34,7 +36,28 @@ use JSON;
 use constant {
     GNUPLOT_TIME_OFFSET => 946684800,
     IGNORE => 'IGNORE',
+    BASEDIR => dirname(abs_path($0)),
 };
+
+
+my $manifest = decode_json( read_file(BASEDIR . '/public/raw/manifest.json') );
+my %counters;
+my %indexes;
+my %groups;
+for my $run (keys %$manifest) {
+    $counters{$run} = decode_json( read_file(BASEDIR . '/public/raw/' . $run . '/counters.json') );
+    foreach my $type (keys %{$counters{$run}}) {
+	foreach my $pi (keys %{$counters{$run}->{$type}}) {
+	    foreach my $group (keys %{$counters{$run}->{$type}->{$pi}}) {
+		foreach my $counter (keys %{$counters{$run}->{$type}->{$pi}->{$group}->{Counters}}) {
+		    $indexes{$run}->{$counters{$run}->{$type}->{$pi}->{$group}->{Counters}->{$counter}->{index}} = $counters{$run}->{$type}->{$pi}->{$group}->{Counters}->{$counter};
+		    $groups{$run}->{$counters{$run}->{$type}->{$pi}->{$group}->{Counters}->{$counter}->{index}} = $counters{$run}->{$type}->{$pi}->{$group};
+		}
+	    }
+	}
+    }
+}
+
 
 get '/' => sub {
   my $self = shift;
@@ -59,13 +82,16 @@ get '/raw' => sub {
 get '/plot' => sub {
   my $self = shift;
   my $params = decode_json( $self->param('params') );
+  my $run = $params->{run};
+
+  return unless(exists($manifest->{$run}));
 
   my @dsets;
   foreach my $y (@{$params->{y}}) {
     push(@dsets, Chart::Gnuplot::DataSet->new(
 	datafile => 'public/raw/run1/data.csv',
 	using => "1:$y smooth csplines",
-	title => "Row $y",
+	title => $indexes{$run}->{$y}->{counter},
 	style => 'lines lw 3',
     ));
   }
@@ -73,6 +99,7 @@ get '/plot' => sub {
   my ($fh, $fn) = tempfile('plot-XXXXXXXX', TMPDIR => 1, SUFFIX => '.png');
   close($fh);
 
+  my $group = $groups{$run}->{ $params->{y}->[0] };
   my $chart = Chart::Gnuplot->new(
     output => $fn,
     timefmt => '"%s"',
@@ -81,11 +108,13 @@ get '/plot' => sub {
 	position => 'below',
     },
     xrange => [$params->{from} - GNUPLOT_TIME_OFFSET, $params->{to} - GNUPLOT_TIME_OFFSET],
+    yrange => [($group->{Min} < 0 ? $group->{Min}*1.1 : 0), $group->{Max}*1.1],
     grid => {
 	width => 1,
     },
     tics => 'out',
   );
+  $chart->command('set format y '.$group->{Format});
   $chart->plot2d(@dsets);
 
   my $data = read_file($fn);

@@ -159,6 +159,7 @@ function getParams(x, y) {
     var v = $('#sli_range').slider('values');
 
     return {
+	run: $rname,
 	ptype: $('#rad_graph :radio:checked').attr('id'),
 	from: v[0],
 	to: v[1],
