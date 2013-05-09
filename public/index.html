@@ -238,8 +238,7 @@ function init_run() {
 	    var id = ui.item[0].id.substring(1);
 	    var add = [ ];
 
-	    rows = menu_getsel($counters[$rname], id.substring(0,6), 0, id);
-	    alert(rows);
+	    var rows = menu_getsel($counters[$rname], id.substring(0,6), 0, id);
 
 	    if(id in refs) {
 		add.push(id);
