@@ -165,20 +165,20 @@ function getParams() {
 }
 
 function menu_getsel(content, prefix, level, path) {
-    ret = [];
-    l = level + 1;
+    var ret = [];
+    var l = level + 1;
 
     $.each(sorted_keys(content), function(i, key) {
-	p = prefix + ':' + key;
+	var p = prefix + ':' + key;
 	if(l < 4) { //>
-	    r = (l == 3 ?
-		    ret.push( menu_getsel(content[key]['Counters'], p, l, path) )
+	    var r = (l == 3 ?
+		    menu_getsel(content[key]['Counters'], p, l, path)
 		:
-		    ret.concat( menu_getsel(content[key], p, l, path) )
+		    menu_getsel(content[key], p, l, path)
 	    );
 
-	    if(p.indexOf(path) == 0 && r.length > 0)
-		ret.concat(r);
+	    if(r != undefined && r.length > 0)
+		(l == 3 ? ret.push(r) : ret = ret.concat(r));
 	}
 	else {
 	    if(p.indexOf(path) == 0)
@@ -195,9 +195,9 @@ function menu_builder(content, prefix, level) {
     var l = level + 1;
 
     $.each(sorted_keys(content), function(i, key) {
-	p = prefix + ':' + key;
+	var p = prefix + ':' + key;
 	if(l < 4) { //>
-	    r = (l == 3 ?
+	    var r = (l == 3 ?
 		menu_builder(content[key]['Counters'], p, l)
 		:
 		menu_builder(content[key], p, l)
