@@ -234,9 +234,9 @@ function init_run() {
     $('#meta').text($meta[$rname]['cmdline']);
 
     var men_selected = function (event, ui) {
-	    $('#a-sel-' + this.id.slice(-1)).text( ui.item[0].textContent );
 	    var id = ui.item[0].id.substring(1);
 	    var add = [ ];
+	    $('#a-sel-' + this.id.slice(-1)).text( id.substring(7).split(':').join(' / ') );
 
 	    var rows = menu_getsel($counters[$rname], id.substring(0,6), 0, id);
 
