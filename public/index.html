@@ -134,6 +134,7 @@ var $rname;
 var $runs = { };
 var $meta = { };
 var $counters = { };
+var $rows =  { };
 
 function sorted_keys(data) {
     var keys = [ ];
@@ -161,6 +162,7 @@ function getParams() {
 	ptype: $('#rad_graph :radio:checked').attr('id'),
 	from: v[0],
 	to: v[1],
+	rows: $rows,
     };
 }
 
@@ -235,41 +237,9 @@ function init_run() {
 
     var men_selected = function (event, ui) {
 	    var id = ui.item[0].id.substring(1);
-	    var add = [ ];
 	    $('#a-sel-' + this.id.slice(-1)).text( id.substring(7).split(':').join(' / ') );
 
-	    var rows = menu_getsel($counters[$rname], id.substring(0,6), 0, id);
-
-	    if(id in refs) {
-		add.push(id);
-	    }
-	    else if(id.substring(0, 3) == 'gr_') {
-		id = 'co' + id.substring(2) + '_';
-		len = id.length;
-		$.each(refs, function(k, v) {
-		    if(k.substring(0, len) == id) {
-			add.push(k);
-		    }
-		});
-	    }
-	    $.each(add, function(i, id) {
-		$.each(['trend', 'histogram'], function(j, n) {
-		    var close = $('<div/>', {
-			title: 'close',
-			class: 'close',
-			html: '<b>x</b>',
-		    });
-		    close.click(function() {
-			$('#' + id).remove();
-		    });
-
-		    $('<div/>', {
-			id: id,
-			title: titles[id],
-			class: 'drag',
-		    }).appendTo('#div_content').draggable().append('<img src=""/>').append(close);
-		});
-	    });
+	    $rows[this.id.slice(-1)] = menu_getsel($counters[$rname], id.substring(0,6), 0, id);
     };
 
 
