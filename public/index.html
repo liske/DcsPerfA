@@ -248,8 +248,12 @@ function init_run() {
     $('#meta').text($meta[$rname]['cmdline']);
 
     var men_selected = function (event, ui) {
+	    var axis = this.id.slice(-1);
+	    $('#ul-submenu-' + axis).hide();
+	    $('#ul-menu-' + axis).menu('collapseAll', null, true);
+
 	    var id = ui.item[0].id.substring(1);
-	    $('#a-sel-' + this.id.slice(-1)).text( id.substring(7).split(':').join(' / ') );
+	    $('#a-sel-' + axis).text( id.substring(7).split(':').join(' / ') );
 
 	    $rows[this.id.slice(-1)] = menu_getsel($counters[$rname], id.substring(0,6), 0, id);
     };
