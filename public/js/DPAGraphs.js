@@ -28,7 +28,7 @@ function DPAGraph(pid, id, params) {
     $('<div/>', {
 	id: 'div_' + id,
 	class: 'drag',
-    }).appendTo(pid).draggable().append('<img id="' + id + '" />').append(close);
+    }).appendTo(pid).draggable().append('<img id="' + id + '" class="gnuplot" />').append(close);
     this.setParams(params);
 }
 
