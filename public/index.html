@@ -16,13 +16,13 @@ div.drag {
     border-style: ridge;
     border-width: 3px;
     border-color: grey;
-    cursor: pointer;
 }
 
 div.close {
     position: absolute;
     top: 0;
     left: 98%;
+    cursor: pointer;
 }
 
 .gnuplot {
@@ -128,7 +128,7 @@ th {
     </tr>
     <tr>
 	<th></th>
-	<td><button id="btn_apply">Apply</button> <button id="btn_add">Add</button></td>
+	<td><button id="btn_add">Add</button></td>
     </tr>
 </table>
 
@@ -139,7 +139,6 @@ th {
 </div>
 
 <script>
-var $graph;
 var $rname;
 var $runs = { };
 var $meta = { };
@@ -308,26 +307,13 @@ $.getJSON('raw/manifest.json', function(data) {
 $(function() {
     $('#rad_graph').buttonset();
 
-    $('#btn_apply').button({
-	disabled: true,
-	icons: { primary: 'ui-icon-pencil' },
-    }).click(function() {
-	$.each($rows['x'], function(i, x) {
-	    $.each(x, function(ii, x2) {
-		$.each($rows['y'], function(j, y) {
-		    DPAGraphs.updateGraph($graph, getParams(x2, y));
-		});
-	    });
-	});
-    });
-
     $('#btn_add').button({
 	icons: { primary: 'ui-icon-plus' },
     }).click(function() {
 	$.each($rows['x'], function(i, x) {
 	    $.each(x, function(ii, x2) {
 		$.each($rows['y'], function(j, y) {
-		    $graph = DPAGraphs.addGraph('#div_content', getParams(x2, y));
+		    DPAGraphs.addGraph('#div_content', getParams(x2, y));
 		});
 	    });
 	});
