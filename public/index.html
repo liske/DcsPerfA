@@ -59,9 +59,9 @@ th {
     <tr>
 	<th>Presentation:</th>
 	<td id="rad_graph">
-	    <input type="radio" name="rad_graph" id="trend" checked="1" /><label for="trend">trend</label>
-	    <input type="radio" name="rad_graph" id="histogram" /><label for="histogram">histogram</label>
-	    <input type="radio" name="rad_graph" id="correlation" /><label for="correlation">correlation</label>
+	    <input type="radio" name="rad_graph" class="presentation" id="trend" /><label for="trend">trend</label>
+	    <input type="radio" name="rad_graph" class="presentation" id="histogram" /><label for="histogram">histogram</label>
+	    <input type="radio" name="rad_graph" class="presentation" id="correlation" /><label for="correlation">correlation</label>
 	</td>
     </tr>
     <tr>
@@ -309,6 +309,19 @@ $.getJSON('raw/manifest.json', function(data) {
 
 $(function() {
     $('#rad_graph').buttonset();
+    $('input.presentation').change(function() {
+	if(this.id != 'correlation') {
+	    $rows['x'] = [[1]];
+	    $('#a-sel-x').text('Time');
+	    $('#ul-menu-x').menu('disable');
+	    $('#ul-menu-z').menu('disable');
+	}
+	else {
+	    $('#ul-menu-x').menu('enable');
+	    $('#ul-menu-z').menu('enable');
+	    return;
+	}
+    });
 
     $('#btn_add').button({
 	icons: { primary: 'ui-icon-plus' },
