@@ -90,7 +90,7 @@ get '/plot' => sub {
   foreach my $y (@{$params->{y}}) {
     push(@dsets, Chart::Gnuplot::DataSet->new(
 	datafile => BASEDIR . "/public/raw/$run/data.csv",
-	using => "1:$y smooth csplines",
+	using => "$params->{x}:$y smooth csplines",
 	title => $indexes{$run}->{$y}->{counter},
 	style => 'lines lw 3',
     ));

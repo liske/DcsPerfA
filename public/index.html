@@ -134,7 +134,7 @@ var $rname;
 var $runs = { };
 var $meta = { };
 var $counters = { };
-var $rows =  { x: [[0]] };
+var $rows =  { x: [[1]] };
 
 function sorted_keys(data) {
     var keys = [ ];
@@ -299,8 +299,10 @@ $(function() {
 	icons: { primary: 'ui-icon-pencil' },
     }).click(function() {
 	$.each($rows['x'], function(i, x) {
-	    $.each($rows['y'], function(j, y) {
-		DPAGraphs.updateGraph($graph, getParams(x, y));
+	    $.each(x, function(ii, x2) {
+		$.each($rows['y'], function(j, y) {
+		    DPAGraphs.updateGraph($graph, getParams(x2, y));
+		});
 	    });
 	});
     });
@@ -309,8 +311,10 @@ $(function() {
 	icons: { primary: 'ui-icon-plus' },
     }).click(function() {
 	$.each($rows['x'], function(i, x) {
-	    $.each($rows['y'], function(j, y) {
-		$graph = DPAGraphs.addGraph('#div_content', getParams(x, y));
+	    $.each(x, function(ii, x2) {
+		$.each($rows['y'], function(j, y) {
+		    $graph = DPAGraphs.addGraph('#div_content', getParams(x2, y));
+		});
 	    });
 	});
     });
