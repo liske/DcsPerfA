@@ -352,6 +352,7 @@ $(function() {
     });
 
     $('#btn_add').button({
+	disabled: true,
 	icons: { primary: 'ui-icon-plus' },
     }).click(function() {
 	$.each($rows['x'], function(i, x) {
