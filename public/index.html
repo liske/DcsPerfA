@@ -258,6 +258,8 @@ function init_run() {
 	    $('#a-sel-' + axis).text( id.substring(7).split(':').join(' / ') );
 
 	    $rows[this.id.slice(-1)] = menu_getsel($counters[$rname], id.substring(0,6), 0, id);
+
+	    check_add();
     };
 
 
@@ -307,20 +309,46 @@ $.getJSON('raw/manifest.json', function(data) {
     $('#sel_run').change();
 });
 
+function check_add() {
+    var ptype = $('#rad_graph :radio:checked').attr('id');
+    var b = (
+	((ptype == 'trend' || ptype == 'histogram') && $rows['y']) ||
+	((ptype == 'correlation') && $rows['x'] && $rows['y'] && $rows['z'])
+    );
+
+    if(b)
+	$('#btn_add').button('enable');
+    else
+	$('#btn_add').button('disable');
+}
+
 $(function() {
     $('#rad_graph').buttonset();
     $('input.presentation').change(function() {
 	if(this.id != 'correlation') {
-	    $rows['x'] = [[1]];
-	    $('#a-sel-x').text('Time');
-	    $('#ul-menu-x').menu('disable');
-	    $('#ul-menu-z').menu('disable');
+	    if(this.id == 'histogram') {
+		$('#a-sel-x').text('-');
+		$('#a-sel-z').text('-');
+		$rows['x'] = null;
+		$rows['z'] = null;
+		$('#ul-menu-x').menu('disable');
+		$('#ul-menu-z').menu('disable');
+	    }
+	    else {
+		$rows['x'] = [[1]];
+		$rows['z'] = null;
+		$('#a-sel-x').text('Time');
+		$('#a-sel-z').text('-');
+		$('#ul-menu-x').menu('disable');
+		$('#ul-menu-z').menu('disable');
+	    }
 	}
 	else {
 	    $('#ul-menu-x').menu('enable');
 	    $('#ul-menu-z').menu('enable');
-	    return;
 	}
+
+	check_add();
     });
 
     $('#btn_add').button({
