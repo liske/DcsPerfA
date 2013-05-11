@@ -32,12 +32,33 @@ div.close {
 
 .ui-menu {
     position: relative;
-    z-index: 999;
+    z-index: 333;
 }
 
 th {
     text-align: right;
 }
+
+#loader {
+    background: white;
+    border: 1px solid black;
+    padding: 1em;
+    position: fixed;
+    z-index: 999;
+    width: 50%;
+}
+
+#cover {
+    display: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    z-index: 666;
+    top: 0;
+    left: 0;
+}
+
     </style>
 </head>
 <body>
@@ -137,6 +158,8 @@ th {
 
 <div id="div_content">
 </div>
+
+<div id="cover"></div>
 
 <script>
 var $rname;
@@ -275,40 +298,6 @@ function init_run() {
     }
 }
 
-$('#sel_run').change(function() {
-    $('#sel_run option:selected').each(function() {
-	$rname = $(this).text();
-	if($rname in $counters) {
-	    init_run();
-	} else {
-	    var p = ['raw', $rname, 'counters.json'];
-	    $.getJSON(p.join('/'), function(data) {
-		$counters[$rname] = data;
-		init_run();
-	    });
-	}
-    });
-});
-
-$.getJSON('raw/manifest.json', function(data) {
-    $.each(sorted_keys(data), function(i, key) {
-	val = data[key];
-	$('#sel_run').append($('<option>', {
-	    value: key,
-	    text: key,
-	}));
-
-	$runs[key] = val;
-
-	var p = ['raw', key, 'meta.json'];
-	$.getJSON(p.join('/'), function(data) {
-	    $meta[key] = data;
-	});
-    });
-
-    $('#sel_run').change();
-});
-
 function check_add() {
     var ptype = $('#rad_graph :radio:checked').attr('id');
     var b = (
@@ -323,6 +312,29 @@ function check_add() {
 }
 
 $(function() {
+    $('#sel_run').change(function() {
+	$('#sel_run option:selected').each(function() {
+	    $rname = $(this).text();
+	    if($rname in $counters) {
+		init_run();
+	    } else {
+		var p = ['raw', $rname, 'counters.json'];
+		$('#loading').text(p.join('/'));
+		$.getJSON(p.join('/'), function(data) {
+		    $counters[$rname] = data;
+		    init_run();
+
+		    $('#loader').hide();
+		    $('#cover').animate({
+			opacity: 0,
+		    }, 1000, function() {
+			$('#cover').hide();
+		    });
+		});
+	    }
+	});
+    });
+
     $('#rad_graph').buttonset();
     $('input.presentation').change(function() {
 	if(this.id != 'correlation') {
@@ -379,6 +391,43 @@ $(function() {
     });
 
     $('#trend').click();
+
+    $("#cover").show().css("opacity",0.6);
+    $('<div id="loader"><center><i><b>Loading...</b></i><p id="pbar"></p><pre id="loading"></pre></center></div>').appendTo('body').position({
+	my: 'center center',
+	at: 'center center',
+	of: $('body'),
+    });
+//    $('#loader').spin();
+
+    $('#pbar').progressbar();
+    var p = ['raw', 'manifest.json'];
+    $('#loading').text(p.join('/'));
+    $.getJSON(p.join('/'), function(data) {
+	var keys = sorted_keys(data);
+	$('#pbar').progressbar('value', 1/(2 + keys.length) * 100);
+
+	$.each(keys, function(i, key) {
+	    var p = ['raw', key, 'meta.json'];
+	    $('#loading').text(p.join('/'));
+
+	    val = data[key];
+	    $('#sel_run').append($('<option>', {
+		value: key,
+		text: key,
+	    }));
+
+	    $runs[key] = val;
+
+	    $.getJSON(p.join('/'), function(data) {
+		$meta[key] = data;
+	    });
+
+	    $('#pbar').progressbar('value', (2+i)/(2 + keys.length) * 100);
+	});
+
+	$('#sel_run').change();
+    });
 });
 </script>
 </body>
