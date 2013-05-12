@@ -141,8 +141,6 @@ get '/plot' => sub {
 	terminal => 'svg enhanced mouse jsdir "../js/gnuplot"',
 	output => $fn,
 	title => " (histogram; bin-width = $cwidth)",
-	timefmt => '"%s"',
-	xdata => 'time',
 	legend => {
 	    position => 'below',
 	},
