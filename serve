@@ -129,7 +129,7 @@ get '/plot' => sub {
     my $chart = Chart::Gnuplot->new(
 	terminal => 'svg enhanced mouse jsdir "../js/gnuplot"',
 	output => $fn,
-	title => " (trend)",
+	title => "$params->{headings}->{y} (trend)",
 	timefmt => '"%s"',
 	xdata => 'time',
 	xrange => [$params->{from} - GNUPLOT_TIME_OFFSET, $params->{to} - GNUPLOT_TIME_OFFSET],
@@ -147,7 +147,7 @@ get '/plot' => sub {
     my $chart = Chart::Gnuplot->new(
 	terminal => 'svg enhanced mouse jsdir "../js/gnuplot"',
 	output => $fn,
-	title => " (histogram; bin-width = $cwidth)",
+	title => "$params->{headings}->{y} (histogram; bin-width = $cwidth)",
 	xrange => [($ygroup->{Min} < 0 ? $ygroup->{Min} : 0), $ygroup->{Max}],
 	yrange => [0, 100],
 	grid => {
@@ -163,9 +163,8 @@ get '/plot' => sub {
   }
   elsif($params->{ptype} eq 'correlation') {
     my $chart = Chart::Gnuplot->new(
-#	terminal => 'svg enhanced mouse jsdir "../js/gnuplot"',
 	output => $fn,
-	title => " (correlation)",
+	title => "$params->{headings}->{y} vs. $params->{headings}->{x}",
 	xrange => [($xgroup->{Min} < 0 ? $xgroup->{Min}*1.1 : 0), $xgroup->{Max}*1.1],
 	yrange => [($ygroup->{Min} < 0 ? $ygroup->{Min}*1.1 : 0), $ygroup->{Max}*1.1],
 	xlabel => $indexes{$run}->{$params->{x}}->{counter},
