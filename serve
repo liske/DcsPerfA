@@ -117,7 +117,7 @@ get '/plot' => sub {
   my $group = $groups{$run}->{ $params->{y}->[0] };
   if($params->{ptype} eq 'trend') {
     my $chart = Chart::Gnuplot->new(
-	terminal => 'svg mouse jsdir "../js/gnuplot"',
+	terminal => 'svg enhanced mouse jsdir "../js/gnuplot"',
 	output => $fn,
 	title => " (trend)",
 	timefmt => '"%s"',
@@ -138,7 +138,7 @@ get '/plot' => sub {
   elsif($params->{ptype} eq 'histogram') {
     my $cwidth = abs($group->{Max}*1.0 - $group->{Min}*1.0)/100;
     my $chart = Chart::Gnuplot->new(
-	terminal => 'svg mouse jsdir "../js/gnuplot"',
+	terminal => 'svg enhanced mouse jsdir "../js/gnuplot"',
 	output => $fn,
 	title => " (histogram; bin-width = $cwidth)",
 	timefmt => '"%s"',
