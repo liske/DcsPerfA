@@ -303,7 +303,8 @@ function check_add() {
     var ptype = $('#rad_graph :radio:checked').attr('id');
     var b = (
 	((ptype == 'trend' || ptype == 'histogram') && $rows['y']) ||
-	((ptype == 'correlation') && $rows['x'] && $rows['y'] && $rows['z'])
+	((ptype == 'correlation') && $rows['x'] && $rows['y']) ||
+	((ptype == 'heatmap') && $rows['x'] && $rows['y'] && $rows['z'])
     );
 
     if(b)
