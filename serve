@@ -88,6 +88,7 @@ get '/plot' => sub {
   my $self = shift;
   my $params = decode_json( $self->param('params') );
   my $run = $params->{run};
+  my $mime = ($params->{ptype} eq 'correlation' ? 'png' : 'svg');
 
   return unless(exists($manifest->{$run}));
 
@@ -119,10 +120,11 @@ get '/plot' => sub {
     }
   }
 
-  my ($fh, $fn) = tempfile('plot-XXXXXXXX', TMPDIR => 1, SUFFIX => '.svg');
+  my ($fh, $fn) = tempfile('plot-XXXXXXXX', TMPDIR => 1, SUFFIX => ".$mime");
   close($fh);
 
-  my $group = $groups{$run}->{ $params->{y}->[0] };
+  my $xgroup = $groups{$run}->{ $params->{x} };
+  my $ygroup = $groups{$run}->{ $params->{y}->[0] };
   if($params->{ptype} eq 'trend') {
     my $chart = Chart::Gnuplot->new(
 	terminal => 'svg enhanced mouse jsdir "../js/gnuplot"',
@@ -131,29 +133,29 @@ get '/plot' => sub {
 	timefmt => '"%s"',
 	xdata => 'time',
 	xrange => [$params->{from} - GNUPLOT_TIME_OFFSET, $params->{to} - GNUPLOT_TIME_OFFSET],
-	yrange => [($group->{Min} < 0 ? $group->{Min}*1.1 : 0), $group->{Max}*1.1],
+	yrange => [($ygroup->{Min} < 0 ? $ygroup->{Min}*1.1 : 0), $ygroup->{Max}*1.1],
 	grid => {
 	    width => 1,
 	},
 	tics => 'out',
     );
-    $chart->command('set format y '.$group->{Format});
+    $chart->command('set format y '.$ygroup->{Format});
     $chart->plot2d(@dsets);
   }
   elsif($params->{ptype} eq 'histogram') {
-    my $cwidth = abs($group->{Max}*1.0 - $group->{Min}*1.0)/100;
+    my $cwidth = abs($ygroup->{Max}*1.0 - $ygroup->{Min}*1.0)/100;
     my $chart = Chart::Gnuplot->new(
 	terminal => 'svg enhanced mouse jsdir "../js/gnuplot"',
 	output => $fn,
 	title => " (histogram; bin-width = $cwidth)",
-	xrange => [($group->{Min} < 0 ? $group->{Min} : 0), $group->{Max}],
+	xrange => [($ygroup->{Min} < 0 ? $ygroup->{Min} : 0), $ygroup->{Max}],
 	yrange => [0, 100],
 	grid => {
 	    width => 1,
 	},
 	tics => 'out',
     );
-    $chart->command('set format x '.$group->{Format});
+    $chart->command('set format x '.$ygroup->{Format});
     $chart->command("set format y \"%.1s %%\"");
     $chart->command("width=$cwidth");
     $chart->command('hist(x,width)=width*floor(x/width)+width/2.0');
@@ -161,24 +163,26 @@ get '/plot' => sub {
   }
   elsif($params->{ptype} eq 'correlation') {
     my $chart = Chart::Gnuplot->new(
-	terminal => 'svg enhanced mouse jsdir "../js/gnuplot"',
+#	terminal => 'svg enhanced mouse jsdir "../js/gnuplot"',
 	output => $fn,
 	title => " (correlation)",
-#	xrange => [$params->{from} - GNUPLOT_TIME_OFFSET, $params->{to} - GNUPLOT_TIME_OFFSET],
-#	yrange => [($group->{Min} < 0 ? $group->{Min}*1.1 : 0), $group->{Max}*1.1],
+	xrange => [($xgroup->{Min} < 0 ? $xgroup->{Min}*1.1 : 0), $xgroup->{Max}*1.1],
+	yrange => [($ygroup->{Min} < 0 ? $ygroup->{Min}*1.1 : 0), $ygroup->{Max}*1.1],
+	xlabel => $indexes{$run}->{$params->{x}}->{counter},
 	grid => {
 	    width => 1,
 	},
 	tics => 'out',
     );
-    $chart->command('set format y '.$group->{Format});
+    $chart->command('set format x '.$xgroup->{Format});
+    $chart->command('set format y '.$ygroup->{Format});
     $chart->plot2d(@dsets);
   }
 
   my $data = read_file($fn);
   unlink($fn);
 
-  $self->render(data => $data , format => 'svg');
+  $self->render(data => $data , format => $mime);
 };
 
 my @chars = ('a'..'z', 'A'..'Z', 0..9);
