@@ -109,6 +109,14 @@ get '/plot' => sub {
 	    style => 'steps lw 3',
 	));
     }
+    elsif($params->{ptype} eq 'correlation') {
+	push(@dsets, Chart::Gnuplot::DataSet->new(
+	    datafile => BASEDIR . "/public/raw/$run/data.csv",
+	    using => "$params->{x}:$y",
+	    title => $indexes{$run}->{$y}->{counter},
+	    style => 'points pt 7 ps 1',
+	));
+    }
   }
 
   my ($fh, $fn) = tempfile('plot-XXXXXXXX', TMPDIR => 1, SUFFIX => '.svg');
@@ -149,6 +157,21 @@ get '/plot' => sub {
     $chart->command("set format y \"%.1s %%\"");
     $chart->command("width=$cwidth");
     $chart->command('hist(x,width)=width*floor(x/width)+width/2.0');
+    $chart->plot2d(@dsets);
+  }
+  elsif($params->{ptype} eq 'correlation') {
+    my $chart = Chart::Gnuplot->new(
+	terminal => 'svg enhanced mouse jsdir "../js/gnuplot"',
+	output => $fn,
+	title => " (correlation)",
+#	xrange => [$params->{from} - GNUPLOT_TIME_OFFSET, $params->{to} - GNUPLOT_TIME_OFFSET],
+#	yrange => [($group->{Min} < 0 ? $group->{Min}*1.1 : 0), $group->{Max}*1.1],
+	grid => {
+	    width => 1,
+	},
+	tics => 'out',
+    );
+    $chart->command('set format y '.$group->{Format});
     $chart->plot2d(@dsets);
   }
 
