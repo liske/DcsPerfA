@@ -267,6 +267,7 @@ foreach my $type (sort keys %classes) {
 
 		%{ $json{$type}->{$pi}->{$group}->{Counters}->{$counter} } = %{ $classes{$type}->{$pi}->{$group}->{$counter} };
 		$json{$type}->{$pi}->{$group}->{Counters}->{$counter}->{index} = $indexes{ $k1 }->{ $k2 };
+		$json{$type}->{$pi}->{$group}->{Counters}->{$counter}->{values} = $keys{ $k1 }->{ $k2 };
 		$json{$type}->{$pi}->{$group}->{Counters}->{$counter}->{stats}->{mean} = mean( $vectors{$k1}->{$k2} )->query;
 		$json{$type}->{$pi}->{$group}->{Counters}->{$counter}->{stats}->{median} = median( $vectors{$k1}->{$k2} )->query;
 		$json{$type}->{$pi}->{$group}->{Counters}->{$counter}->{stats}->{var} = var( $vectors{$k1}->{$k2} )->query;
