@@ -88,34 +88,70 @@ get '/plot' => sub {
 
   my @dsets;
   foreach my $y (@{$params->{y}}) {
-    push(@dsets, Chart::Gnuplot::DataSet->new(
-	datafile => BASEDIR . "/public/raw/$run/data.csv",
-	using => "$params->{x}:$y smooth csplines",
-	title => $indexes{$run}->{$y}->{counter},
-	style => 'lines lw 3',
-    ));
+    if($params->{ptype} eq 'trend') {
+	push(@dsets, Chart::Gnuplot::DataSet->new(
+	    datafile => BASEDIR . "/public/raw/$run/data.csv",
+	    using => "$params->{x}:$y smooth csplines",
+	    title => $indexes{$run}->{$y}->{counter},
+	    style => 'lines lw 3',
+	));
+    }
+    elsif($params->{ptype} eq 'histogram') {
+	push(@dsets, Chart::Gnuplot::DataSet->new(
+	    datafile => BASEDIR . "/public/raw/$run/data.csv",
+	    using => "(hist(\$$y,width)):(100.0/$indexes{$run}->{$y}->{values}) smooth freq",
+	    title => $indexes{$run}->{$y}->{counter},
+	    style => 'steps lw 3',
+	));
+    }
   }
 
   my ($fh, $fn) = tempfile('plot-XXXXXXXX', TMPDIR => 1, SUFFIX => '.png');
   close($fh);
 
   my $group = $groups{$run}->{ $params->{y}->[0] };
-  my $chart = Chart::Gnuplot->new(
-    output => $fn,
-    timefmt => '"%s"',
-    xdata => 'time',
-    legend => {
-	position => 'below',
-    },
-    xrange => [$params->{from} - GNUPLOT_TIME_OFFSET, $params->{to} - GNUPLOT_TIME_OFFSET],
-    yrange => [($group->{Min} < 0 ? $group->{Min}*1.1 : 0), $group->{Max}*1.1],
-    grid => {
-	width => 1,
-    },
-    tics => 'out',
-  );
-  $chart->command('set format y '.$group->{Format});
-  $chart->plot2d(@dsets);
+  if($params->{ptype} eq 'trend') {
+    my $chart = Chart::Gnuplot->new(
+	output => $fn,
+	title => " (trend)",
+	timefmt => '"%s"',
+	xdata => 'time',
+	legend => {
+	    position => 'below',
+	},
+	xrange => [$params->{from} - GNUPLOT_TIME_OFFSET, $params->{to} - GNUPLOT_TIME_OFFSET],
+	yrange => [($group->{Min} < 0 ? $group->{Min}*1.1 : 0), $group->{Max}*1.1],
+	grid => {
+	    width => 1,
+	},
+	tics => 'out',
+    );
+    $chart->command('set format y '.$group->{Format});
+    $chart->plot2d(@dsets);
+  }
+  elsif($params->{ptype} eq 'histogram') {
+    my $cwidth = abs($group->{Max}*1.0 - $group->{Min}*1.0)/100;
+    my $chart = Chart::Gnuplot->new(
+	output => $fn,
+	title => " (histogram; bin-width = $cwidth)",
+	timefmt => '"%s"',
+	xdata => 'time',
+	legend => {
+	    position => 'below',
+	},
+	xrange => [($group->{Min} < 0 ? $group->{Min} : 0), $group->{Max}],
+	yrange => [0, 100],
+	grid => {
+	    width => 1,
+	},
+	tics => 'out',
+    );
+    $chart->command('set format x '.$group->{Format});
+    $chart->command("set format y \"%.1s %%\"");
+    $chart->command("width=$cwidth");
+    $chart->command('hist(x,width)=width*floor(x/width)+width/2.0');
+    $chart->plot2d(@dsets);
+  }
 
   my $data = read_file($fn);
   unlink($fn);
