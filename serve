@@ -79,6 +79,11 @@ get '/raw' => sub {
   $self->render_static('/raw');
 };
 
+get '/plot/grid.png' => sub {
+  my $self = shift;
+  $self->render_static('/js/gnuplot/grid.png');
+};
+
 get '/plot' => sub {
   my $self = shift;
   my $params = decode_json( $self->param('params') );
