@@ -324,7 +324,7 @@ function filter_builder(content, prefix, level) {
     var ret = [ ];
     var groups = filter_builder_helper(content, prefix, level);
 
-    ret.push('<li id="#' + prefix + '"><a href="#"><i>nothing</i></a></li>');
+    ret.push('<li id="#' + prefix + ':' + 'nothing"><a href="#"><i>nothing</i></a></li>');
     $.each(sorted_keys(groups), function(i, group) {
 	var p = prefix + ':' + group;
 
@@ -388,6 +388,23 @@ function init_run() {
 	    check_add();
     };
 
+    var fil_selected = function (event, ui) {
+	    var id = ui.item[0].id.substring(1);
+	    if(!id)
+		return;
+
+	    var axis = this.id.slice(-1);
+	    var ids = id.substring(9).split(':');
+
+	    $('#ul-subfilter-' + axis).hide();
+	    $('#ul-filter-' + axis).menu('collapseAll', null, true);
+
+	    if(ids.length == 1 && ids[0] == 'nothing')
+		$('#a-fil-' + axis).html( '<i>nothing</i>' );
+	    else
+		$('#a-fil-' + axis).text( ids.join(' / ') );
+    };
+
 
     var axis = ['x', 'y', 'z'];
     for (i in axis) {
@@ -402,7 +419,7 @@ function init_run() {
     $('#ul-subfilter-y').html($( '' ));
     $('#ul-filter-y').menu({
 	disabled: true,
-//	select: fil_selected,
+	select: fil_selected,
     });
 }
 
