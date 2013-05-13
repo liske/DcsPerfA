@@ -362,15 +362,13 @@ function init_run() {
 
 	    if(axis == 'y') {
 		if(ids.length > 2) {
-		    $('#ul-filter-y').menu({
-			disabled: true,
-		    });
+		    $('#ul-filter-y').menu('refresh');
+		    $('#ul-filter-y').menu('disable');
 		}
 		else {
 		    $('#ul-subfilter-y').html($( filter_builder((ids.length == 2 ? $counters[$rname][ids[0]][ids[1]] : $counters[$rname][ids[0]]), "filter-y") ));
-		    $('#ul-filter-y').menu({
-			disabled: false,
-		    });
+		    $('#ul-filter-y').menu('refresh');
+		    $('#ul-filter-y').menu('enable');
 		}
 	    }
 
