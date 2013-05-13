@@ -22,6 +22,7 @@ Install
 DcsPerfA is a small Perl script and requires the following perl packages:
 * Chart::Gnuplot
 * Date::Parse
+* File::Slurp
 * JSON(::XS)
 * Mojolicious
 * Statistics::Basic
