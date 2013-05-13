@@ -24,7 +24,6 @@
 #   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 #
 
-use Chart::Gnuplot;
 use Date::Parse;
 use File::Spec;
 use JSON;
@@ -35,7 +34,6 @@ use warnings;
 die "Usage: $0 <from> <to> <defs.csv> <data.csv> <output dir> [name]\n" unless($#ARGV == 4 || $#ARGV == 5);
 
 use constant {
-    GNUPLOT_TIME_OFFSET => 946684800,
     IGNORE => 'IGNORE',
 };
 
