@@ -128,10 +128,12 @@ th {
 		    </td>
 		    <td>filtered by</td>
 		    <td>
-		<ul id="ul-filter-y">
+	    <ul id="ul-filter-y">
+		<li>
 		    <a id="a-fil-y" href="#">nothing</a>
 		    <ul id="ul-subfilter-y"></ul>
-		</ul>
+		</li>
+	    </ul>
 		    </td>
 		</tr>
 	    </table>
@@ -267,11 +269,16 @@ function filter_builder_helper(content, prefix, level) {
     var groups = { };
 
     if(level == 0) {
+	return groups;
+
 	$.each(sorted_keys(content), function(i, type) {
-	    var g = filter_builder(content[type], prefix + ':' + type, level + 1);
+	    var g = filter_builder_helper(content[type], prefix + ':' + type, level + 1);
 
 	    $.each(sorted_keys(g), function(j, group) {
 		$.each(sorted_keys(g[group]), function(k, counter) {
+		    if(!(group in groups))
+			groups[group] = { };
+
 		    groups[group][counter] = 1;
 		});
 	    });
@@ -282,10 +289,13 @@ function filter_builder_helper(content, prefix, level) {
 
     if(level == 1) {
 	$.each(sorted_keys(content), function(i, pi) {
-	    var g = filter_builder(content[pi], prefix + ':' + pi, level + 1);
+	    var g = filter_builder_helper(content[pi], prefix + ':' + pi, level + 1);
 
 	    $.each(sorted_keys(g), function(j, group) {
 		$.each(sorted_keys(g[group]), function(k, counter) {
+		    if(!(group in groups))
+			groups[group] = { };
+
 		    groups[group][counter] = 1;
 		});
 	    });
@@ -297,6 +307,9 @@ function filter_builder_helper(content, prefix, level) {
     if(level == 2) {
 	$.each(sorted_keys(content), function(i, group) {
 	    $.each(sorted_keys(content[group]['Counters']), function(j, counter) {
+		if(!(group in groups))
+		    groups[group] = { };
+
 		groups[group][counter] = 1;
 	    });
 	});
@@ -311,7 +324,7 @@ function filter_builder(content, prefix, level) {
     var ret = [ ];
     var groups = filter_builder_helper(content, prefix, level);
 
-    ret.push('<li id="#' + prefix + '"><a href="#"><i>nothing</i></a><ul>');
+    ret.push('<li id="#' + prefix + '"><a href="#"><i>nothing</i></a></li>');
     $.each(sorted_keys(groups), function(i, group) {
 	var p = prefix + ':' + group;
 
@@ -361,12 +374,12 @@ function init_run() {
 	    $rheadings[this.id.slice(-1)] = ids[1];
 
 	    if(axis == 'y') {
-		if(ids.length > 2) {
+		if(ids.length > 1) {
 		    $('#ul-filter-y').menu('refresh');
 		    $('#ul-filter-y').menu('disable');
 		}
 		else {
-		    $('#ul-subfilter-y').html($( filter_builder((ids.length == 2 ? $counters[$rname][ids[0]][ids[1]] : $counters[$rname][ids[0]]), "filter-y") ));
+		    $('#ul-subfilter-y').html($( filter_builder($counters[$rname][ids[0]], "filter-y", 1) ));
 		    $('#ul-filter-y').menu('refresh');
 		    $('#ul-filter-y').menu('enable');
 		}
@@ -386,9 +399,9 @@ function init_run() {
 	    select: men_selected,
 	});
     }
-    $('#ul-subfilter-y').html($( filter_builder($counters[$rname], "filter-y") ));
+    $('#ul-subfilter-y').html($( '' ));
     $('#ul-filter-y').menu({
-	    disabled: true,
+	disabled: true,
 //	select: fil_selected,
     });
 }
