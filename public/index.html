@@ -126,6 +126,13 @@ th {
 		</li>
 	    </ul>
 		    </td>
+		    <td>filtered by</td>
+		    <td>
+		<ul id="ul-filter-y">
+		    <a id="a-fil-y" href="#">nothing</a>
+		    <ul id="ul-subfilter-y"></ul>
+		</ul>
+		    </td>
 		</tr>
 	    </table>
 	</td>
@@ -256,6 +263,69 @@ function menu_builder(content, prefix, level) {
     return ret.join("\n");
 }
 
+function filter_builder_helper(content, prefix, level) {
+    var groups = { };
+
+    if(level == 0) {
+	$.each(sorted_keys(content), function(i, type) {
+	    var g = filter_builder(content[type], prefix + ':' + type, level + 1);
+
+	    $.each(sorted_keys(g), function(j, group) {
+		$.each(sorted_keys(g[group]), function(k, counter) {
+		    groups[group][counter] = 1;
+		});
+	    });
+	});
+
+	return groups;
+    }
+
+    if(level == 1) {
+	$.each(sorted_keys(content), function(i, pi) {
+	    var g = filter_builder(content[pi], prefix + ':' + pi, level + 1);
+
+	    $.each(sorted_keys(g), function(j, group) {
+		$.each(sorted_keys(g[group]), function(k, counter) {
+		    groups[group][counter] = 1;
+		});
+	    });
+	});
+
+	return groups;
+    }
+
+    if(level == 2) {
+	$.each(sorted_keys(content), function(i, group) {
+	    $.each(sorted_keys(content[group]['Counters']), function(j, counter) {
+		groups[group][counter] = 1;
+	    });
+	});
+
+	return groups;
+    }
+
+    return { };
+}
+
+function filter_builder(content, prefix, level) {
+    var ret = [ ];
+    var groups = filter_builder_helper(content, prefix, level);
+
+    ret.push('<li id="#' + prefix + '"><a href="#"><i>nothing</i></a><ul>');
+    $.each(sorted_keys(groups), function(i, group) {
+	var p = prefix + ':' + group;
+
+	ret.push('<li id="#' + p + '"><a href="#">' + group + '</a><ul>');
+
+	$.each(sorted_keys(groups[group]), function(j, counter) {
+	    ret.push('<li id="#' + p + ':' + counter + '"><a href="#">' + counter + '</a></li>');
+	});
+	ret.push('</ul></li>');
+    });
+
+    return ret.join("\n");
+}
+
 function init_run() {
     $( "#sli_range" ).slider({
 	min: $meta[$rname]['ffrom_ut'],
@@ -290,6 +360,20 @@ function init_run() {
 	    $rows[this.id.slice(-1)] = menu_getsel($counters[$rname], id.substring(0,6), 0, id);
 	    $rheadings[this.id.slice(-1)] = ids[1];
 
+	    if(axis == 'y') {
+		if(ids.length > 2) {
+		    $('#ul-filter-y').menu({
+			disabled: true,
+		    });
+		}
+		else {
+		    $('#ul-subfilter-y').html($( filter_builder((ids.length == 2 ? $counters[$rname][ids[0]][ids[1]] : $counters[$rname][ids[0]]), "filter-y") ));
+		    $('#ul-filter-y').menu({
+			disabled: false,
+		    });
+		}
+	    }
+
 	    check_add();
     };
 
@@ -304,6 +388,11 @@ function init_run() {
 	    select: men_selected,
 	});
     }
+    $('#ul-subfilter-y').html($( filter_builder($counters[$rname], "filter-y") ));
+    $('#ul-filter-y').menu({
+	    disabled: true,
+//	select: fil_selected,
+    });
 }
 
 function check_add() {
