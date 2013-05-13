@@ -178,6 +178,7 @@ var $meta = { };
 var $counters = { };
 var $rows =  { x: [[1]] };
 var $rheadings = { x: 'Time' };
+var $filters = { };
 
 function sorted_keys(data) {
     var keys = [ ];
@@ -401,8 +402,11 @@ function init_run() {
 
 	    if(ids.length == 1 && ids[0] == 'nothing')
 		$('#a-fil-' + axis).html( '<i>nothing</i>' );
-	    else
+		delete($filters[this.id.slice(-1)]);
+	    else {
 		$('#a-fil-' + axis).text( ids.join(' / ') );
+		$filters[this.id.slice(-1)] = ids;
+	    }
     };
 
 
