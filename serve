@@ -175,6 +175,13 @@ get '/plot' => sub {
     );
     $chart->command('set format x '.$xgroup->{Format});
     $chart->command('set format y '.$ygroup->{Format});
+    $chart->command('set termoption dashed');
+
+    push(@dsets,
+     Chart::Gnuplot::DataSet->new(
+	    func => 'x',
+	    style => 'lines lt 2 lc 9 lw 2',
+    ));
     $chart->plot2d(@dsets);
   }
 
