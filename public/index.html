@@ -380,8 +380,6 @@ function init_run() {
 
 	    var axis = this.id.slice(-1);
 	    var ids = id.substring(7).split(':');
-	    if(ids.length < 2 && axis != 'y') //#>
-		return;
 
 	    $('#ul-submenu-' + axis).hide();
 	    $('#ul-menu-' + axis).menu('collapseAll', null, true);
