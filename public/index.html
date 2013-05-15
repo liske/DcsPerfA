@@ -108,6 +108,15 @@ th {
 		</li>
 	    </ul>
 		    </td>
+		    <td>filtered by</td>
+		    <td>
+	    <ul id="ul-filter-x">
+		<li>
+		    <a id="a-fil-x" href="#"><i>nothing</i></a>
+		    <ul id="ul-subfilter-x"></ul>
+		</li>
+	    </ul>
+		    </td>
 		</tr>
 	    </table>
 	</td>
@@ -382,15 +391,15 @@ function init_run() {
 	    $rows[this.id.slice(-1)] = menu_getsel($counters[$rname], id.substring(0,6), 0, id, $filters[this.id.slice(-1)]);
 	    $rheadings[this.id.slice(-1)] = ids[1];
 
-	    if(axis == 'y') {
+	    if(axis == 'x' || axis == 'y') {
 		if(ids.length > 1) {
-		    $('#ul-filter-y').menu('refresh');
-		    $('#ul-filter-y').menu('disable');
+		    $('#ul-filter-' + axis).menu('refresh');
+		    $('#ul-filter-' + axis).menu('disable');
 		}
 		else {
-		    $('#ul-subfilter-y').html($( filter_builder($counters[$rname][ids[0]], "filter-y", 1) ));
-		    $('#ul-filter-y').menu('refresh');
-		    $('#ul-filter-y').menu('enable');
+		    $('#ul-subfilter-' + axis).html($( filter_builder($counters[$rname][ids[0]], "filter-y", 1) ));
+		    $('#ul-filter-' + axis).menu('refresh');
+		    $('#ul-filter-' + axis).menu('enable');
 		}
 	    }
 
@@ -428,12 +437,15 @@ function init_run() {
 	    disabled: (a == 'y' ? false : true),
 	    select: men_selected,
 	});
+
+	if(a != 'z') {
+	    $('#ul-subfilter-' + a).html($( '' ));
+	    $('#ul-filter-' + a).menu({
+		disabled: true,
+		select: fil_selected,
+	    });
+	}
     }
-    $('#ul-subfilter-y').html($( '' ));
-    $('#ul-filter-y').menu({
-	disabled: true,
-	select: fil_selected,
-    });
 }
 
 function check_add() {
