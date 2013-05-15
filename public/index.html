@@ -233,7 +233,7 @@ function menu_getsel(content, prefix, level, path, filter) {
 	    if(l == 3 && filter && filter[0] != key)
 		f = null;
 	
-	    if(l != 3 || !filter || (filter && (filter[0] == key || filter.length > 1))) {
+	    if(l != 3 || !filter || (filter && filter[0] == key)) {
 		var r = (l == 3 ?
 			menu_getsel(content[key]['Counters'], p, l, path, f)
 		    :
