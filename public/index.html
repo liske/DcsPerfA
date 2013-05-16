@@ -186,7 +186,6 @@ var $runs = { };
 var $meta = { };
 var $counters = { };
 var $rows = { x: [[1]] };
-var $rheadings = { x: 'Time' };
 var $filters = { };
 var $lastsel = { };
 
@@ -219,7 +218,6 @@ function getParams(x, y) {
 	to: v[1],
 	x: x,
 	y: y,
-	headings: $rheadings,
     };
 }
 
@@ -389,7 +387,6 @@ function init_run() {
 
 	    $rows[this.id.slice(-1)] = menu_getsel($counters[$rname], id.substring(0,6), 0, id, $filters[this.id.slice(-1)]);
 	    $lastsel[this.id.slice(-1)] = [id.substring(0,6), id];
-	    $rheadings[this.id.slice(-1)] = ids[1];
 
 	    if(axis == 'x' || axis == 'y') {
 		if(ids.length > 1) {
@@ -492,7 +489,6 @@ $(function() {
     $('input.presentation').change(function() {
 	if(this.id == 'trend') {
 	    $rows['x'] = [[1]];
-	    $rheadings['x'] = 'Time';
 	    $rows['z'] = null;
 	    $('#a-sel-x').text('Time');
 	    $('#a-sel-z').text('-');
