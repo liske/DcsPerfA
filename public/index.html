@@ -188,6 +188,7 @@ var $counters = { };
 var $rows = { x: [[1]] };
 var $rheadings = { x: 'Time' };
 var $filters = { };
+var $lastsel = { };
 
 function sorted_keys(data) {
     var keys = [ ];
@@ -387,6 +388,7 @@ function init_run() {
 	    $('#a-sel-' + axis).text( ids.join(' / ') );
 
 	    $rows[this.id.slice(-1)] = menu_getsel($counters[$rname], id.substring(0,6), 0, id, $filters[this.id.slice(-1)]);
+	    $lastsel[this.id.slice(-1)] = [id.substring(0,6), id];
 	    $rheadings[this.id.slice(-1)] = ids[1];
 
 	    if(axis == 'x' || axis == 'y') {
@@ -423,6 +425,8 @@ function init_run() {
 		$('#a-fil-' + axis).text( ids.join(' / ') );
 		$filters[this.id.slice(-1)] = ids;
 	    }
+
+	    $rows[this.id.slice(-1)] = menu_getsel($counters[$rname], $lastsel[this.id.slice(-1)][0], 0, $lastsel[this.id.slice(-1)][1], $filters[this.id.slice(-1)]);
     };
 
 
