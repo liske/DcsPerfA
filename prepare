@@ -58,8 +58,6 @@ $rname = $rname || 'run1';
 
 $outdir =~ s@/$@@;
 mkdir($outdir);
-mkdir("$outdir/img");
-mkdir("$outdir/img/$rname");
 mkdir("$outdir/raw");
 mkdir("$outdir/raw/$rname");
 die "Output path '$outdir' is not a directory!\n" unless(-d $outdir);
