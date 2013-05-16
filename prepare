@@ -25,13 +25,14 @@
 #
 
 use Date::Parse;
+use File::Basename;
 use File::Spec;
 use JSON;
 use Statistics::Basic qw(:all);
 use strict;
 use warnings;
 
-die "Usage: $0 <from> <to> <defs.csv> <data.csv> <output dir> [name]\n" unless($#ARGV == 4 || $#ARGV == 5);
+die "Usage: $0 <from> <to> <defs.csv> <data.csv> [name]\n" unless($#ARGV == 3 || $#ARGV == 4);
 
 use constant {
     IGNORE => 'IGNORE',
@@ -48,7 +49,8 @@ my %groupings = (
     IGNORE => qr/^Bytes/,
     );
 
-my ($from, $to, $fn_defs, $fn_data, $outdir, $rname) = @ARGV;
+my ($from, $to, $fn_defs, $fn_data, $rname) = @ARGV;
+my $outdir = dirname($0).'/public';
 my $t1 = str2time($from);
 my $t2 = str2time($to);
 die "Could not read definition file '$fn_defs'!\n" unless (-r $fn_defs);
