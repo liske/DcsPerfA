@@ -136,6 +136,7 @@ get '/plot' => sub {
 	xdata => 'time',
 	xrange => [$params->{from} - GNUPLOT_TIME_OFFSET, $params->{to} - GNUPLOT_TIME_OFFSET],
 	yrange => [($ygroup->{Min} < 0 ? $ygroup->{Min}*1.1 : 0), $ygroup->{Max}*1.1],
+	xlabel => $indexes{$run}->{$params->{x}}->{counter},
 	grid => {
 	    width => 1,
 	},
@@ -152,6 +153,7 @@ get '/plot' => sub {
 	title => "$pis{$run}->{$params->{y}->[0]} (histogram; bin-width = $cwidth)",
 	xrange => [($ygroup->{Min} < 0 ? $ygroup->{Min} : 0), $ygroup->{Max}],
 	yrange => [0, 100],
+	xlabel => $indexes{$run}->{$params->{x}}->{counter},
 	grid => {
 	    width => 1,
 	},
