@@ -44,7 +44,7 @@ my %groupings = (
     Pending => qr/Pending/,
     Percent => qr/Percent/,
     Bytes => qr/.+Bytes.+/,
-    Time => qr/Time$/,
+    Latency => qr/Time$/,
     IOPs => qr/(Operations|Reads|Writes)$/,
     IGNORE => qr/^Bytes/,
     );
@@ -180,7 +180,7 @@ foreach my $ts (sort {$a <=> $b} keys %vals) {
 		next unless(defined($group));
 
 		# normalize time values
-		$v /= 1000000 if($group =~ /Time/);
+		$v /= 1000000 if($group =~ /Latency/);
 
 		$maxs{$group} = $v if(!exists($maxs{$group}) || $maxs{$group} < $v);
 		$mins{$group} = $v if(!exists($mins{$group}) || $mins{$group} > $v);
@@ -216,7 +216,7 @@ sub getFormat($$) {
     if($group =~ /Byte/) {
 	return "\"%.1s %cb$ps\"";
     }
-    elsif($group =~ /Time/) {
+    elsif($group =~ /Latency/) {
 	return "\"%.1s %cs$ps\"";
     }
     elsif($group =~ /Percent/) {
