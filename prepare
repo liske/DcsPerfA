@@ -86,18 +86,34 @@ my %classes;
 my %names;
 my %deltas;
 my %groupmap;
+my %tmaps = (
+    'Hour'	=> 2,
+    'Day'	=> 3,
+    'Month'	=> 4,
+    'DoW'	=> 6,
+);
 open(HDEFS, $fn_defs) || die "Could not open '$fn_defs': $!\n";
-while(<HDEFS>) {
+foreach (
+    <HDEFS>,
+    (map { "LT\t$tmaps{$_}\tTime\tLocal\tLocal\t$_\tAbsolute"; } keys %tmaps),
+    (map { "UT\t$tmaps{$_}\tTime\tUniversal\tUniversal\t$_\tAbsolute"; } keys %tmaps)
+) {
     chomp;
     my ($k1, $k2, $type, $pishort, $pilong, $counter, $ctype) = split(/[,\t]/);
-    die if(exists($names{$k1}) && exists($names{$k1}->{$k2}));
+    die "$k1 $k2" if(exists($names{$k1}) && exists($names{$k1}->{$k2}));
     $names{$k1}->{$k2} = "$pilong:$counter";
 
-    my $group = $counter;
-    foreach my $g (keys %groupings) {
-	if($counter =~ $groupings{$g}) {
-	    $group = $g;
-	    last;
+    my $group;
+    if($k1 eq 'LT' || $k1 eq 'UT') {
+	$group = 'Time' ;
+    }
+    else {
+	$group = $counter;
+	foreach my $g (keys %groupings) {
+	    if($counter =~ $groupings{$g}) {
+		$group = $g;
+		last;
+	    }
 	}
     }
 
@@ -129,6 +145,16 @@ while(<HDATA>) {
     $ts = int($ts/10000 + 0.5)*10;
 
     next unless($ts >= $t1 && $ts <= $t2);
+
+    unless(exists($vals{$ts})) {
+	foreach my $tt (qw(LT UT)) {
+	    foreach my $i (values %tmaps) {
+		my @t = ($tt eq 'LT' ? localtime($ts) : gmtime($ts));
+		$vals{$ts}->{$tt}->{$i} = $t[$i];
+		$keys{$tt}->{$i}++;
+	    }
+	}
+    }
 
     $vals{$ts}->{$k1}->{$k2} = $data;
     $keys{$k1}->{$k2}++;
@@ -162,8 +188,7 @@ foreach my $ts (sort {$a <=> $b} keys %vals) {
 
     foreach my $k1 (@k1) {
 	foreach my $k2 (sort {$a <=> $b} keys %{$keys{$k1}}) {
-
-	    my $v = $vals{$ts}->{$k1}->{$k2};
+    	    my $v = $vals{$ts}->{$k1}->{$k2};
 
 	    if($deltas{$k1}->{$k2}) {
 		if(defined($last)) {
@@ -241,8 +266,10 @@ foreach my $type (sort keys %classes) {
 
 	foreach my $group (sort keys %{ $classes{$type}->{$pi} }) {
 	    # ignore empty groups
-	    next unless(defined($mins{$group}));
-	    next if($mins{$group} == 0 && $maxs{$group} == 0);
+	    if($group ne 'Time') {
+		next unless(defined($mins{$group}));
+		next if($mins{$group} == 0 && $maxs{$group} == 0);
+	    }
 
  	    my $ctype;
 
