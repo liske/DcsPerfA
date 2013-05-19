@@ -168,7 +168,7 @@ th {
     </tr>
     <tr>
 	<th></th>
-	<td><button id="btn_add">Add</button></td>
+	<td><button id="btn_add">Add</button> <button id="btn_remove">Remove</button></td>
     </tr>
 </table>
 
@@ -529,6 +529,15 @@ $(function() {
 		});
 	    });
 	});
+	$('#btn_remove').button('enable');
+    });
+
+    $('#btn_remove').button({
+	disabled: true,
+	icons: { primary: 'ui-icon-trash' },
+    }).click(function() {
+	$('div.drag').remove();
+	$('#btn_remove').button('disable');
     });
 
     $('#btn_upload').button({
