@@ -87,16 +87,18 @@ my %names;
 my %deltas;
 my %groupmap;
 my %tmaps = (
-    'Hour'	=> 2,
-    'Day'	=> 3,
-    'Month'	=> 4,
-    'DoW'	=> 6,
+    'Hour'		=> { idx => 1, format => '"%02.0sh"', calc => { 2 => 1}},
+    'Hour.Minute'	=> { idx => 2, format => '"%02.1sh"', calc => { 2 => 1, 1 => 1/60}},
+    'Day of Month'	=> { idx => 3, format => '"%02.0s."', calc => { 3 => 1}},
+    'Month'		=> { idx => 4, format => '"%02.0s."', calc => { 4 => 1}},
+    'Day of Week'	=> { idx => 5, format => '"%.0s"', calc => { 6 => 1}},
+    'Day of Year'	=> { idx => 6, format => '"%.0s"', calc => { 7 => 1}},
 );
 open(HDEFS, $fn_defs) || die "Could not open '$fn_defs': $!\n";
 foreach (
     <HDEFS>,
-    (map { "LT\t$tmaps{$_}\tTime\tLocal\tLocal\t$_\tAbsolute"; } keys %tmaps),
-    (map { "UT\t$tmaps{$_}\tTime\tUTC\tUTC\t$_\tAbsolute"; } keys %tmaps)
+    (map { "LT\t$tmaps{$_}->{idx}\tTime\t$_\tLocal\t$_\tAbsolute"; } keys %tmaps),
+    (map { "UT\t$tmaps{$_}->{idx}\tTime\t$_\tUTC\t$_\tAbsolute"; } keys %tmaps)
 ) {
     chomp;
     my ($k1, $k2, $type, $pishort, $pilong, $counter, $ctype) = split(/[,\t]/);
@@ -105,7 +107,7 @@ foreach (
 
     my $group;
     if($k1 eq 'LT' || $k1 eq 'UT') {
-	$group = 'Time' ;
+	$group = $pishort;
     }
     else {
 	$group = $counter;
@@ -148,9 +150,13 @@ while(<HDATA>) {
 
     unless(exists($vals{$ts})) {
 	foreach my $tt (qw(LT UT)) {
-	    foreach my $i (values %tmaps) {
+	    foreach my $k (keys %tmaps) {
+		my $i = $tmaps{$k}->{idx};
 		my @t = ($tt eq 'LT' ? localtime($ts) : gmtime($ts));
-		$vals{$ts}->{$tt}->{$i} = $t[$i];
+		$vals{$ts}->{$tt}->{$i} = 0;
+		foreach my $c (keys %{$tmaps{$k}->{calc}}) {
+		    $vals{$ts}->{$tt}->{$i} += $t[$c] * $tmaps{$k}->{calc}->{$c};
+		}
 		$keys{$tt}->{$i}++;
 	    }
 	}
@@ -249,6 +255,9 @@ sub getFormat($$) {
     }
     elsif($group =~ /IOPs/) {
 	return "\"%.1s %cIO$ps\"";
+    }
+    elsif(exists($tmaps{$group})) {
+	return $tmaps{$group}->{format};
     }
     else {
 	return "\"%.1s %c$ps\"";
