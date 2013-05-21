@@ -96,7 +96,7 @@ open(HDEFS, $fn_defs) || die "Could not open '$fn_defs': $!\n";
 foreach (
     <HDEFS>,
     (map { "LT\t$tmaps{$_}\tTime\tLocal\tLocal\t$_\tAbsolute"; } keys %tmaps),
-    (map { "UT\t$tmaps{$_}\tTime\tUniversal\tUniversal\t$_\tAbsolute"; } keys %tmaps)
+    (map { "UT\t$tmaps{$_}\tTime\tUTC\tUTC\t$_\tAbsolute"; } keys %tmaps)
 ) {
     chomp;
     my ($k1, $k2, $type, $pishort, $pilong, $counter, $ctype) = split(/[,\t]/);
